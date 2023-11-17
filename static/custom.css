@@ -44,6 +44,7 @@ p.cover-text {
   padding-right: 50px;
   padding-bottom: 30px;
   border-radius: 15%;
+  /*align-items: center;*/
 }
 .cover-card-block {
   opacity: 1
