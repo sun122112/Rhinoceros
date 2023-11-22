@@ -12,7 +12,7 @@
 <div class = "container"> <!-- container for 'Tasks' & 'Teams' Button -->
   <div class = "row">
       <p>Click to view either your tasks or your teams.</p>
-      <div class = "btn-group" role = "group" aria-label = "View Teams/Tasks button group">
+      <div class = "btn-group " role = "group" aria-label = "View Teams/Tasks button group">
         
         <button type="button" class = "btn btn-secondary btn-lg btn-block ">Tasks</button>
         <button type="button" class = "btn btn-secondary btn-lg btn-block ">Teams</button>
@@ -23,14 +23,16 @@
 
 <!-- container for 'My Tasks -->
 <!-- includes card for the heading & separate card for table content -->
-<div class = "container" > 
-  <div class = "row">
+<div class = "container vh-100" > 
+  <div class = "row h-100">
     <div class = "col-12">
       
-      <div class = "card">
+      <!--<div class = "card dashboard-card">-->
         <h3>My Tasks <button class="btn btn-sm btn-outline-secondary">+</button></h3>
-      </div>
-      <div class = "card">
+      <!--</div> -->
+      
+      <div class = "card dashboard-card">
+
         <table class = "table">
           <thead>
             <tr>
@@ -64,6 +66,7 @@
           </tbody>
         </table>
       </div>
+
     </div>
 </div>
 
@@ -79,7 +82,9 @@
         <table class = "table">
           <thead>
             <tr>
+              <th scope="col">#</th>
               <th scope="col">Teams</th>
+              <th scope="col">Add. Info</th>
               <th scope="col">People</th>
   
             </tr>
@@ -87,13 +92,17 @@
           <tbody>
             <tr>
               <!--Test values, for now -->
-              <th scope="row">Example Team #1</th>
+              <th scope="row">1</th>
+              <td>Example Team</td>
+              <td>-</td>
               <td>...</td>
 
             </tr>
             <tr>
               <!--Test values, for now -->
-              <th scope="row">Example Team #1</th>
+              <th scope="row">2</th>
+              <td>Example Team</td>
+              <td>-</td>
               <td>...</td>
       
             </tr>
