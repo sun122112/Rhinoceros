@@ -1,15 +1,21 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
+from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tasks.helpers import login_prohibited
+from tasks.models import Task, default_due
 
 
 @login_required
@@ -151,3 +157,29 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+
+
+def task(request):
+    # if request.method == 'GET':
+    tasks = Task.objects.all()
+    return render(request, 'task.html', {'tasks': tasks})
+
+
+def task_create(request):
+    print(request.method)
+    if request.method == 'POST':
+        if request.POST.get("due"):
+            due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
+        else:
+            due = default_due()
+
+        new_task = Task(
+            task_name=request.POST.get("task_name"),
+            content=request.POST.get("content"),
+            due=due,
+            owner=request.POST.get("owner"),
+        )
+        new_task.save()
+        return redirect('task')
+    return render(request, 'task_create.html')
+
