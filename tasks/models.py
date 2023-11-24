@@ -52,4 +52,4 @@ class Task(models.Model):
     task_name = models.CharField(max_length=32)
     content = models.CharField(max_length=200)
     due = models.DateTimeField(default=default_due)
-    owner = models.IntegerField()  # user id
+    # owner = models.IntegerField()  # user id

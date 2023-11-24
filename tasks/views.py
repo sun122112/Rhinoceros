@@ -23,7 +23,9 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
+    tasks = Task.objects.all()
+    return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
+
 
 
 @login_prohibited
@@ -159,12 +161,6 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
 
-def task(request):
-    # if request.method == 'GET':
-    tasks = Task.objects.all()
-    return render(request, 'task.html', {'tasks': tasks})
-
-
 def task_create(request):
     print(request.method)
     if request.method == 'POST':
@@ -177,9 +173,9 @@ def task_create(request):
             task_name=request.POST.get("task_name"),
             content=request.POST.get("content"),
             due=due,
-            owner=request.POST.get("owner"),
+            # owner=request.POST.get("owner"),
         )
         new_task.save()
-        return redirect('task')
+        return redirect('dashboard')
     return render(request, 'task_create.html')
 
