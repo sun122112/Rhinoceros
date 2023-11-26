@@ -40,3 +40,12 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+
+def default_due():
+    return timezone.now() + timedelta(days=7)
+
+
+class Task(models.Model):
+    task_name = models.CharField(max_length=32)
+    content = models.CharField(max_length=200)
+    due = models.DateTimeField(default=default_due)

@@ -151,3 +151,29 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+
+def create_task(request):
+    print(request.method)
+    if request.method == 'POST':
+        if request.POST.get("due"):
+            due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
+        else:
+            due = default_due()
+
+        new_task = Task(
+            task_name=request.POST.get("task_name"),
+            content=request.POST.get("content"),
+            due=due,
+            # owner=request.POST.get("owner"),
+        )
+        new_task.save()
+        return redirect('dashboard')
+    return render(request, 'create_task.html')
+
+def my_tasks(request):
+    """page to view my tasks"""
+    return render(request, 'my_tasks.html')
+
+def my_teams(request):
+    """page to view my teams"""
+    return render(request, 'my_teams.html')
