@@ -9,17 +9,53 @@
 </div>
 
 
+ 
+
+
+<!--alternative container-->
+<!--1 card for everything-->
+<div class = "container vh-100 mb-3">
+  <div class = "row h-100">
+    <div class="card">
+      <div class="card-header">
+        <ul class="nav nav-pills card-header-pills nav-fill">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">My Tasks</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">My Teams</a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body">
+        <div id="myTasks" class="tab-content">
+          <!-- Content for My Tasks -->
+          <button class="btn btn-sm btn-outline-secondary text-left">Create Task +</button>
+        </div>
+        <div id="myTeams" class="tab-content">
+          <!-- Content for My Teams -->
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <div class = "container"> <!-- container for 'Tasks' & 'Teams' Button -->
   <div class = "row">
-      <p>Click to view either your tasks or your teams.</p>
+      
       <div class = "btn-group" role = "group" aria-label = "View Teams/Tasks button group">
         
         <button type="button" class = "btn btn-secondary btn-lg btn-block ">Tasks</button>
         <button type="button" class = "btn btn-secondary btn-lg btn-block ">Teams</button>
 
       </div>
+      <p>Click to view either your tasks or your teams.</p>
   </div>
-</div>
+</div> 
 
 <!-- container for 'My Tasks -->
 <!-- includes card for the heading & separate card for table content -->
