@@ -15,7 +15,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tasks.helpers import login_prohibited
-from tasks.models import Task, default_due
+from tasks.models import Task, default_due, User
 
 
 @login_required
@@ -23,9 +23,8 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    tasks = Task.objects.all()
+    tasks = Task.objects.filter(assignor=current_user.id).all()
     return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
-
 
 
 @login_prohibited
@@ -161,21 +160,48 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
 
-def task_create(request):
-    print(request.method)
-    if request.method == 'POST':
+class TaskView(View):
+    """task view"""
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request):
+        users = User.objects.all()
+        return render(request, 'task_create.html', {"users": users})
+
+    def post(self, request):
+        if request.POST.get("action") == "update":
+            task_id = request.POST.get("id")
+            status = request.POST.get("status")
+
+            try:
+                task_to_update = Task.objects.get(pk=int(task_id))
+                task_to_update.status = status
+                task_to_update.save()
+            except Exception as e:
+                return HttpResponse("error: {}".format(str(e)))
+            return redirect('dashboard')
+
+        if request.POST.get("id"):
+            try:
+                task_to_delete = Task.objects.get(pk=int(request.POST.get('id')))
+                task_to_delete.delete()
+            except Exception as e:
+                return HttpResponse("error: {}".format(str(e)))
+            return redirect('dashboard')
+
         if request.POST.get("due"):
             due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
         else:
             due = default_due()
 
+        current_user = request.user
         new_task = Task(
             task_name=request.POST.get("task_name"),
             content=request.POST.get("content"),
             due=due,
-            # owner=request.POST.get("owner"),
+            assignor=request.POST.get("assignor") or current_user.id,
+            status=Task.Status.IN_PROGRESS,
         )
         new_task.save()
         return redirect('dashboard')
-    return render(request, 'task_create.html')
-

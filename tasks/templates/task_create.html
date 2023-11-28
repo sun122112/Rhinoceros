@@ -7,7 +7,7 @@
     </div>
   </div>
   <div class="row">
-    <form method="post" action="{% url 'task_create' %}">
+    <form method="post" action="{% url 'task' %}">
       {% csrf_token %}
       <label for="task_name">Task Name:</label>
       <input type="text" id="task_name" name="task_name" required>
@@ -18,8 +18,14 @@
       <label for="due">Due:</label>
       <input type="text" id="due" name="due" placeholder="YYYY-MM-DD HH:MM:SS">
 
-{#      <label for="owner">Owner:</label>#}
-{#      <input type="text" id="owner" name="owner" required>#}
+      <label for="assignor">Assignor:</label>
+      <select name="assignor" id="assignor">
+          {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+          {% endfor %}
+      </select>
+
+      {# <input type="text" id="owner" name="owner" required> #}
 
       <button type="submit">Create Task</button>
     </form>

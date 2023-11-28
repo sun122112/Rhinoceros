@@ -29,7 +29,7 @@
 
       <!--<div class = "card dashboard-card">-->
 {#        <h3>My Tasks <button class="btn btn-sm btn-outline-secondary">+</button></h3>#}
-        <h3>My Tasks <a href="{% url 'task_create' %}" class="btn btn-sm btn-outline-secondary">+</a></h3>
+        <h3>My Tasks <a href="{% url 'task' %}" class="btn btn-sm btn-outline-secondary">+</a></h3>
       <!--</div> -->
 
       <div class = "card dashboard-card">
@@ -48,12 +48,19 @@
           <tbody>
             {% for task in tasks %}
               <tr>
-                <td><a href="{% url 'task_create' %}" class="btn btn-sm btn-outline-secondary"> x </a>{{ task.id }}</td>
+                <td>
+                    <form action="/dashboard/task/" method="post">
+                        {%  csrf_token %}
+                        <button class="btn btn-sm btn-outline-secondary"> x </button>
+                        <input type="hidden" value="{{ task.id }}" name="id"/>
+                        {{ task.id }}
+                    </form>
+                </td>
                 <td>{{ task.task_name }}</td>
                 <td>{{ task.content }}</td>
                 <td>{{ task.due }}</td>
-                <td>Bob</td>
-                <td>In Progress</td>
+                <td>{{ user.username }}</td>
+                <td>{{ task.status }}</td>
               </tr>
             {% endfor %}
           </tbody>

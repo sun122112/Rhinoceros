@@ -49,7 +49,12 @@ def default_due():
 
 
 class Task(models.Model):
+    class Status(models.IntegerChoices):
+        IN_PROGRESS = 1
+        DONE = 2
+
     task_name = models.CharField(max_length=32)
     content = models.CharField(max_length=200)
     due = models.DateTimeField(default=default_due)
-    # owner = models.IntegerField()  # user id
+    assignor = models.IntegerField(default=1)
+    status = models.IntegerField(default=Status.IN_PROGRESS)  # 1 for in progress, 2 for done
