@@ -11,13 +11,19 @@ from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tasks.helpers import login_prohibited
 
+from datetime import datetime
+from django.db import transaction
+from django.http import HttpResponse
+from tasks.models import Task, default_due
+from django.utils.timezone import make_aware
+
 
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
+    return render(request, 'dashboard.html', {'user':current_user})
 
 
 @login_prohibited
@@ -153,7 +159,6 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
 def create_task(request):
-    print(request.method)
     if request.method == 'POST':
         if request.POST.get("due"):
             due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
@@ -162,17 +167,21 @@ def create_task(request):
 
         new_task = Task(
             task_name=request.POST.get("task_name"),
-            content=request.POST.get("content"),
+            content=request.POST.get("task_description"),
             due=due,
-            # owner=request.POST.get("owner"),
+            #order = task.order
         )
         new_task.save()
-        return redirect('dashboard')
+        return redirect('my_tasks')
     return render(request, 'create_task.html')
+
 
 def my_tasks(request):
     """page to view my tasks"""
-    return render(request, 'my_tasks.html')
+    current_user = request.user
+    #tasks = Task.objects.all().order_by('order')
+    tasks = Task.objects.all()
+    return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
 def my_teams(request):
     """page to view my teams"""

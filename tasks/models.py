@@ -2,6 +2,8 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
+from datetime import timedelta
+from django.utils import timezone
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
@@ -49,3 +51,4 @@ class Task(models.Model):
     task_name = models.CharField(max_length=32)
     content = models.CharField(max_length=200)
     due = models.DateTimeField(default=default_due)
+    #order = models.IntegerField()

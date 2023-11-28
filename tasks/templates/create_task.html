@@ -1,28 +1,39 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <h1>Create a New Task</h1>
+
+
+<div class = "container ">
+    <div class = "row">
+        <div class = "col-12">
+            <h1>Create Task!</h1>
+            
+            <form method="post" action="{% url 'create_task' %}">
+                {% csrf_token %}
+                <!--{% include 'partials/bootstrap_form.html' with form=form%}-->
+                
+                <div class="form-group mb-3">
+                    <label for="task_name">Task</label>
+                    <input type="text" class="form-control" id="task_name" name="task_name" placeholder="Enter Task" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="task_description">Task Description</label>
+                    <textarea class="form-control" id="task_description" rows="2" name="task_description" placeholder="Enter Task Description" ></textarea>
+                    <small id="TaskHelp" class="form-text text-muted">Add a description for the task.</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="due">Due Date</label>
+                    <input type="text" class="form-control" id="due" name = "due" placeholder="Enter Due Date">
+                    <small id="TaskHelp" class="form-text text-muted">Write the date in form YYYY-MM-DD</small>
+                </div>
+                
+
+                <button type="submit" class = "btn btn-secondary ">Create Task</button>
+            </form>
+         
+        </div>
     </div>
-  </div>
-  <div class="row">
-    <form method="post" action="{% url 'create_task' %}">
-      {% csrf_token %}
-      <label for="task_name">Task Name:</label>
-      <input type="text" id="task_name" name="task_name" required>
-
-      <label for="content">Content:</label>
-      <textarea id="content" name="content" required></textarea>
-
-      <label for="due">Due:</label>
-      <input type="text" id="due" name="due" placeholder="YYYY-MM-DD">
-
-{#      <label for="owner">Owner:</label>#}
-{#      <input type="text" id="owner" name="owner" required>#}
-
-      <button type="submit">Create Task</button>
-    </form>
-  </div>
 </div>
+
 {% endblock %}

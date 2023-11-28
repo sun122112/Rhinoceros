@@ -19,6 +19,35 @@
             <div id="myTasks" class="tab-content">
               <!-- Content for My Tasks -->
               <a href="{% url 'create_task' %}" button class="btn btn-sm btn-outline-secondary">Create Task +</button></a>
+              
+              
+              <table class = "table">
+                <thead>
+                    <tr>
+                        <th scope="col">#ID</th>
+                        <th scope="col">Task</th>
+                        <th scope="col">Add. Info</th>
+                        <th scope="col">Due Date</th>
+                        <th scope="col">Assigned</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <th scope="row">{{ task.id }}</th>
+                        <td>{{ task.task_name }}</td>
+                        <td>{{ task.content }}</td>
+                        <td>{{ task.due }}</td>
+                        <td>Bob</td>
+                        <td>In Progress</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+
+
+
             </div>
           
         </div>
