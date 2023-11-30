@@ -3,32 +3,13 @@
 <div class="container">
   <div class="row">
     <div class="col-12">
-      <h1>Create a New Task</h1>
+      <h1>Create Task</h1>
+      <form action="{% url 'task' %}" method="post">
+        {% csrf_token %}
+        {% include 'partials/bootstrap_form.html' with form=form %}
+        <input type="submit" value="Task create" class="btn btn-primary">
+      </form>
     </div>
-  </div>
-  <div class="row">
-    <form method="post" action="{% url 'task' %}">
-      {% csrf_token %}
-      <label for="task_name">Task Name:</label>
-      <input type="text" id="task_name" name="task_name" required>
-
-      <label for="content">Content:</label>
-      <textarea id="content" name="content" required></textarea>
-
-      <label for="due">Due:</label>
-      <input type="text" id="due" name="due" placeholder="YYYY-MM-DD HH:MM:SS">
-
-      <label for="assignor">Assignor:</label>
-      <select name="assignor" id="assignor">
-          {% for user in users %}
-          <option value="{{ user.id }}">{{ user.username }}</option>
-          {% endfor %}
-      </select>
-
-      {# <input type="text" id="owner" name="owner" required> #}
-
-      <button type="submit">Create Task</button>
-    </form>
   </div>
 </div>
 {% endblock %}

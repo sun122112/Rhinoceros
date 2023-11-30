@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime
 
 from django.conf import settings
@@ -13,7 +14,7 @@ from django.utils.timezone import make_aware
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, TaskForm
 from tasks.helpers import login_prohibited
 from tasks.models import Task, default_due, User
 
@@ -167,9 +168,11 @@ class TaskView(View):
 
     def get(self, request):
         users = User.objects.all()
-        return render(request, 'task_create.html', {"users": users})
+        form = TaskForm()
+        return render(request, 'task_create.html', {"users": users, "form": form})
 
     def post(self, request):
+        """Update task"""
         if request.POST.get("action") == "update":
             task_id = request.POST.get("id")
             status = request.POST.get("status")
@@ -182,6 +185,7 @@ class TaskView(View):
                 return HttpResponse("error: {}".format(str(e)))
             return redirect('dashboard')
 
+        """Delete task"""
         if request.POST.get("id"):
             try:
                 task_to_delete = Task.objects.get(pk=int(request.POST.get('id')))
@@ -190,18 +194,18 @@ class TaskView(View):
                 return HttpResponse("error: {}".format(str(e)))
             return redirect('dashboard')
 
+        """Create task"""
         if request.POST.get("due"):
             due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
         else:
             due = default_due()
 
-        current_user = request.user
-        new_task = Task(
-            task_name=request.POST.get("task_name"),
-            content=request.POST.get("content"),
-            due=due,
-            assignor=request.POST.get("assignor") or current_user.id,
-            status=Task.Status.IN_PROGRESS,
-        )
-        new_task.save()
+        data = deepcopy(request.POST)
+        data['due'] = due
+
+        if not data.get("assignor"):
+            data["assignor"] = request.user.id
+
+        form = TaskForm(data)
+        form.save()
         return redirect('dashboard')
