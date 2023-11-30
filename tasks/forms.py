@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Task
+from .models import User, Task, Team
 from django.contrib import messages
 
 class LogInForm(forms.Form):
@@ -135,3 +135,27 @@ class CreateTaskForm(forms.ModelForm):
             task.save()
 
         return task
+
+class CreateTeamForm(forms.ModelForm):
+    """Form enabling users to create new teams"""
+    
+    class Meta:
+        """Form options"""
+
+        model = Team
+        fields = ['team_name', 'team_description']
+        widgets = {'team_description' : forms.Textarea()}
+
+    def save(self, commit = True):
+        """Saving a newly created team"""
+
+        super().save(commit=False)
+        team=Team(
+            team_name=self.cleaned_data.get('team_name'),
+            team_description=self.cleaned_data.get('team_description'),
+
+        )
+        if commit:
+            team.save()
+
+        return team

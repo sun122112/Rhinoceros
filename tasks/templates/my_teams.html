@@ -18,7 +18,35 @@
         <div class="card-body">
             <div id="myTeams" class="tab-content">
                 <!-- Content for My Teams -->
-                <a href="#" button class="btn btn-sm btn-outline-secondary">Create Team +</button></a>
+                <a href="{% url 'create_team' %}" button class="btn btn-sm btn-outline-secondary">Create Team +</button></a>
+
+                <table class = "table">
+                  <thead>
+                      <tr>
+                          <th scope="col">#ID</th>
+                          <th scope="col">Team</th>
+                          <th scope="col">Team Description</th>
+                          <th scope="col">Delete</th>
+
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for team in teams %}
+                      <tr>
+                          <th scope="row">{{ team.id }}</th>
+                          <td>{{ team.team_name }}</td>
+                          <td>{{ team.team_description }}</td>
+                          <td>
+                              <a href="{% url 'delete_team' team.id %}" class="btn btn-danger" title="Delete">
+                                  <i class="bi bi-trash"></i>
+                              </a>
+                          </td>
+                      </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+
+
             </div>
           
         </div>

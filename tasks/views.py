@@ -8,13 +8,13 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
 from tasks.helpers import login_prohibited
 
 #from datetime import datetime
 #from django.db import transaction
 from django.http import HttpResponse
-from tasks.models import User, Task
+from tasks.models import User, Task, Team
 #from tasks.models import Task, default_due
 #from django.utils.timezone import make_aware
 from typing import Any
@@ -172,7 +172,8 @@ def my_tasks(request):
 @login_required
 def my_teams(request):
     """page to view my teams"""
-    return render(request, 'my_teams.html')
+    teams=Team.objects.all()
+    return render(request, 'my_teams.html', {'teams': teams})
 
 class CreateTaskView(FormView):
     """Display a create task view and handle newly created tasks. """
@@ -223,3 +224,40 @@ class DeleteTaskView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['task_id'] = self.kwargs.get('task_id')
         return context       
+
+class CreateTeamView(FormView):
+    """Display a create team view and handle newly created teams. """
+    form_class = CreateTeamForm
+    template_name= "create_team.html"
+
+
+    def form_valid(self, form):
+        team = form.save(commit=False)
+        team.save()
+        self.object = team
+        return super().form_valid(form)
+        
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Team Created!")
+        return reverse('my_teams')
+
+class DeleteTeamView(DeleteView):
+    """Display a confirmation view to delete teams and handle team deletion."""
+    model = Team
+    template_name = "delete_team.html"
+
+    def get_object(self, queryset=None):
+        """Return team, as a object, to be deleted"""
+        team = Team.objects.get(id=self.kwargs.get('team_id'))
+        return team
+
+    def get_success_url(self):
+        """Return redirect URL after successful deletion"""
+        messages.add_message(self.request, messages.WARNING, "Team Deleted!")
+        return reverse('my_teams')
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['team_id'] = self.kwargs.get('team_id')
+        return context  

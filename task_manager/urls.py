@@ -31,4 +31,6 @@ urlpatterns = [
     path('dashboard/delete_task/<int:task_id>/', views.DeleteTaskView.as_view(), name='delete_task'),
     path('dashboard/my_tasks/', views.my_tasks, name='my_tasks'),
     path('dashboard/my_teams/', views.my_teams, name='my_teams'),
+    path('dashboard/create_team/', views.CreateTeamView.as_view(), name='create_team'),
+    path('dashboard/delete_team/<int:team_id>/', views.DeleteTeamView.as_view(), name='delete_team'),
 ]

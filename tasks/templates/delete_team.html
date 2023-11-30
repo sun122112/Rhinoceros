@@ -1,0 +1,36 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+
+<div class = "container ">
+    <div class = "row">
+        <div class = "col-12">
+            <h1>Delete A Team</h1>
+
+            <div class = "card">
+                <div class = "card-header">
+                    You've selected to delete this team:
+                    <div class = "card-body">
+                        <p class = "card-text">Team: {{team.team_name}}</p>
+                        <p class = "card-text">Team Description: {{team.team_description}}</p>
+
+                        <form action ="{% url 'delete_team' team_id %}" method="post">
+                            {% csrf_token %}
+                            {% include 'partials/bootstrap_form.html' with form=form%} 
+                            <input type ="submit" value="Delete" class="btn btn-danger mt-3">  
+                        </form>
+                        <br>
+                        <p><a href="{% url 'my_teams' %}" class = "btn btn-secondary">Cancel</a></p>
+                    </div>
+
+                </div>
+                    
+
+            </div>
+
+       
+        </div>
+    </div>
+</div>
+
+{% endblock %}

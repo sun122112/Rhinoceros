@@ -43,9 +43,6 @@ class User(AbstractUser):
         
         return self.gravatar(size=60)
 
-""" def default_due():
-    return timezone.now() + timedelta(days=7) """
-
 
 class Task(models.Model):
 
@@ -62,3 +59,8 @@ class Task(models.Model):
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
     #done = models.BooleanField(default=False)
     status = models.IntegerField(default=Status.NOT_STARTED)
+
+class Team(models.Model):
+    team_name = models.CharField(max_length=32)
+    team_description = models.CharField(max_length=200)
+    #team_members = 
