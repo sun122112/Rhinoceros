@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import Team, User, TeamMembership
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -89,7 +89,9 @@ class PasswordForm(NewPasswordMixin):
 
 class SignUpForm(NewPasswordMixin, forms.ModelForm):
     """Form enabling unregistered users to sign up."""
-
+    
+    
+    teams = forms.ModelMultipleChoiceField(queryset=Team.objects.all(), required=False, widget=forms.CheckboxSelectMultiple)
     class Meta:
         """Form options."""
 
@@ -97,14 +99,20 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         fields = ['first_name', 'last_name', 'username', 'email']
 
     def save(self):
-        """Create a new user."""
+        """Create a new user and add them to selected teams"""
+        
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data.get('new_password'))
+        user.save()
 
-        super().save(commit=False)
-        user = User.objects.create_user(
-            self.cleaned_data.get('username'),
-            first_name=self.cleaned_data.get('first_name'),
-            last_name=self.cleaned_data.get('last_name'),
-            email=self.cleaned_data.get('email'),
-            password=self.cleaned_data.get('new_password'),
-        )
+        selected_teams = self.cleaned_data.get('teams')
+        for team in selected_teams:
+            TeamMembership.objects.create(team=team, member=user)
+
         return user
+
+class TeamInvitationForm(forms.Form):
+    """Form for inviting existing users to join a team."""
+
+    team = forms.ModelChoiceField(queryset=Team.objects.all())
+    members = forms.ModelMultipleChoiceField(queryset=User.objects.all(), widget=forms.CheckboxSelectMultiple)

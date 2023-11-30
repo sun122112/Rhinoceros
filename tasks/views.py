@@ -8,8 +8,10 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
+from tasks.forms import TeamInvitationForm
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tasks.helpers import login_prohibited
+from tasks.models import Team, TeamMembership
 
 
 @login_required
@@ -151,3 +153,25 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+    
+class TeamInvitationView(LoginRequiredMixin, FormView):
+    """Display team invitation screen and handle team invitation requests."""
+
+    template_name = 'team_invitation.html'
+    form_class = TeamInvitationForm
+
+    def form_valid(self, form):
+        """Handle valid form by inviting users to the selected team."""
+        
+        team = form.cleaned_data['team']
+        members = form.cleaned_data['members']
+        
+        for member in members:
+            TeamMembership.objects.create(team=team, member=member)
+
+        messages.add_message(self.request, messages.SUCCESS, "Invitations sent successfully!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        """Redirect the user after successful team invitation."""
+        return reverse('dashboard')    

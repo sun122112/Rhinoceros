@@ -3,6 +3,16 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
 
+class Team(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    members = models.ManyToManyField('User', through='TeamMembership')
+
+class TeamMembership(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    member = models.ForeignKey('User', on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
 
@@ -17,6 +27,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
+    teams = models.ManyToManyField(Team, through=TeamMembership, related_name='team_memberships')
 
 
     class Meta:
