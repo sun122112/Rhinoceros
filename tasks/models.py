@@ -59,8 +59,6 @@ class Task(models.Model):
     #due = models.DateTimeField(default=default_due)
     due = models.DateField(blank=True, null=True)
     #order = models.IntegerField()
-    #assigned = models.IntegerField(default=1)
-    #assigned = models.CharField()
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
     #done = models.BooleanField(default=False)
     status = models.IntegerField(default=Status.NOT_STARTED)

@@ -1,0 +1,38 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+
+<div class = "container ">
+    <div class = "row">
+        <div class = "col-12">
+            <h1>Delete A Task</h1>
+
+            <div class = "card">
+                <div class = "card-header">
+                    You've selected to delete this task:
+                    <div class = "card-body">
+                        <p class = "card-text">Task: {{task.task_name}}</p>
+                        <p class = "card-text">Task Description: {{task.task_description}}</p>
+                        <p class = "card-text">Due: {{task.due}}</p>
+                        <p class = "card-text">Assigned to: {{user.username}}</p>
+                        <p class = "card-text">Status: {{task.status}}</p>
+                        <form action ="{% url 'delete_task' task_id %}" method="post">
+                            {% csrf_token %}
+                            {% include 'partials/bootstrap_form.html' with form=form%} 
+                            <input type ="submit" value="Delete" class="btn btn-danger mt-3">  
+                        </form>
+                        <br>
+                        <p><a href="{% url 'my_tasks' %}" class = "btn btn-secondary">Cancel</a></p>
+                    </div>
+
+                </div>
+                    
+
+            </div>
+
+       
+        </div>
+    </div>
+</div>
+
+{% endblock %}

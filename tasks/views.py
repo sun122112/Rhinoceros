@@ -203,7 +203,7 @@ class CreateTaskView(FormView):
         return form
 
 
-class DeleteTaskView(LoginProhibitedMixin, DeleteView):
+class DeleteTaskView(DeleteView):
     """Display a confirmation view to delete tasks and handle task deletion."""
     model = Task
     template_name = "delete_task.html"
@@ -215,8 +215,9 @@ class DeleteTaskView(LoginProhibitedMixin, DeleteView):
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
-        return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+        #messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
+        messages.add_message(self.request, messages.WARNING, "Task Deleted!")
+        return reverse('my_tasks')
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
