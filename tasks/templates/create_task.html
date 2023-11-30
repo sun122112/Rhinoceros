@@ -5,13 +5,13 @@
 <div class = "container ">
     <div class = "row">
         <div class = "col-12">
-            <h1>Create Task!</h1>
+            <h1>Create A Task!</h1>
             
-            <form method="post" action="{% url 'create_task' %}">
+            <form action="{% url 'create_task' %}" method="post" >
                 {% csrf_token %}
-                <!--{% include 'partials/bootstrap_form.html' with form=form%}-->
+                {% include 'partials/bootstrap_form.html' with form=form%} 
                 
-                <div class="form-group mb-3">
+                <!-- <div class="form-group mb-3">
                     <label for="task_name">Task</label>
                     <input type="text" class="form-control" id="task_name" name="task_name" placeholder="Enter Task" required>
                 </div>
@@ -26,7 +26,7 @@
                     <label for="due">Due Date</label>
                     <input type="text" class="form-control" id="due" name = "due" placeholder="Enter Due Date">
                     <small id="TaskHelp" class="form-text text-muted">Write the date in form YYYY-MM-DD</small>
-                </div>
+                </div> -->
                 
 
                 <button type="submit" class = "btn btn-secondary ">Create Task</button>

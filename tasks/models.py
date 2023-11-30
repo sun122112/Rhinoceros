@@ -43,12 +43,24 @@ class User(AbstractUser):
         
         return self.gravatar(size=60)
 
-def default_due():
-    return timezone.now() + timedelta(days=7)
+""" def default_due():
+    return timezone.now() + timedelta(days=7) """
 
 
 class Task(models.Model):
+
+    class Status(models.IntegerChoices):
+        NOT_STARTED = 0
+        IN_PROGRESS = 1
+        DONE = 2
+
     task_name = models.CharField(max_length=32)
-    content = models.CharField(max_length=200)
-    due = models.DateTimeField(default=default_due)
+    task_description = models.CharField(max_length=200)
+    #due = models.DateTimeField(default=default_due)
+    due = models.DateField(blank=True, null=True)
     #order = models.IntegerField()
+    #assigned = models.IntegerField(default=1)
+    #assigned = models.CharField()
+    assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
+    #done = models.BooleanField(default=False)
+    status = models.IntegerField(default=Status.NOT_STARTED)

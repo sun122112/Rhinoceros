@@ -2,7 +2,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, Task
+from django.contrib import messages
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -108,3 +109,29 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+
+class CreateTaskForm(forms.ModelForm):
+    """Form enabling users to create new tasks, regardless of if a team has been registered or not."""
+
+    class Meta:
+        """Form options"""
+
+        model = Task
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select()}
+
+    def save(self, commit=True):
+        """Saving a newly created task"""
+
+        super().save(commit=False)
+        task=Task(
+            task_name=self.cleaned_data.get('task_name'),
+            task_description=self.cleaned_data.get('task_description'),
+            due=self.cleaned_data.get('due'),
+            assigned=self.cleaned_data.get('assigned'),
+            status=self.cleaned_data.get('status')
+        )
+        if commit:
+            task.save()
+
+        return task

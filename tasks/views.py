@@ -6,16 +6,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm
 from tasks.helpers import login_prohibited
 
-from datetime import datetime
-from django.db import transaction
+#from datetime import datetime
+#from django.db import transaction
 from django.http import HttpResponse
-from tasks.models import Task, default_due
-from django.utils.timezone import make_aware
+from tasks.models import User, Task
+#from tasks.models import Task, default_due
+#from django.utils.timezone import make_aware
+from typing import Any
+
 
 
 @login_required
@@ -158,24 +161,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
-def create_task(request):
-    if request.method == 'POST':
-        if request.POST.get("due"):
-            due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
-        else:
-            due = default_due()
-
-        new_task = Task(
-            task_name=request.POST.get("task_name"),
-            content=request.POST.get("task_description"),
-            due=due,
-            #order = task.order
-        )
-        new_task.save()
-        return redirect('my_tasks')
-    return render(request, 'create_task.html')
-
-
+@login_required
 def my_tasks(request):
     """page to view my tasks"""
     current_user = request.user
@@ -183,6 +169,56 @@ def my_tasks(request):
     tasks = Task.objects.all()
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
+@login_required
 def my_teams(request):
     """page to view my teams"""
     return render(request, 'my_teams.html')
+
+class CreateTaskView(FormView):
+    """Display a create task view and handle newly created tasks. """
+    form_class = CreateTaskForm
+    template_name= "create_task.html"
+    #redirect_when_logged_in_url = 'create_task'
+    #redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
+
+    def form_valid(self, form):
+        task = form.save(commit=False)
+        #task.assigned = self.request.user
+
+        #task.assigned = 1
+
+        task.save()
+        self.object = task
+        return super().form_valid(form)
+        
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Task Created!")
+        return reverse('my_tasks')
+
+    def get_form(self, form_class=form_class):
+        form=super().get_form(form_class)
+        form.fields['assigned'].queryset = User.objects.filter(
+            id=self.request.user.id)
+        return form
+
+
+class DeleteTaskView(LoginProhibitedMixin, DeleteView):
+    """Display a confirmation view to delete tasks and handle task deletion."""
+    model = Task
+    template_name = "delete_task.html"
+
+    def get_object(self, queryset=None):
+        """Return task, as a object, to be deleted"""
+        task = Task.objects.get(id=self.kwargs.get('task_id'))
+        return task
+
+    def get_success_url(self):
+        """Return redirect URL after successful deletion"""
+        messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
+        return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['task_id'] = self.kwargs.get('task_id')
+        return context       

@@ -27,7 +27,7 @@ urlpatterns = [
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
-    path('dashboard/create_task/', views.create_task, name='create_task'),
+    path('dashboard/create_task/', views.CreateTaskView.as_view(), name='create_task'),
     path('dashboard/my_tasks/', views.my_tasks, name='my_tasks'),
     path('dashboard/my_teams/', views.my_teams, name='my_teams'),
 ]
