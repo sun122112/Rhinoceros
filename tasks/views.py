@@ -217,7 +217,7 @@ class DeleteTaskView(DeleteView):
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
         #messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
-        messages.add_message(self.request, messages.WARNING, "Task Deleted!")
+        messages.add_message(self.request, messages.ERROR, "Task Deleted!")
         return reverse('my_tasks')
 
     def get_context_data(self, **kwargs: Any):
@@ -254,7 +254,7 @@ class DeleteTeamView(DeleteView):
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        messages.add_message(self.request, messages.WARNING, "Team Deleted!")
+        messages.add_message(self.request, messages.ERROR, "Team Deleted!")
         return reverse('my_teams')
 
     def get_context_data(self, **kwargs: Any):
