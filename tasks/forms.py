@@ -116,23 +116,25 @@ class TaskForm(forms.ModelForm):
     task_name = forms.CharField(label="Task Name")
     content = forms.CharField(label="Content")
     due = forms.DateTimeField(label="Due", required=False)
-    assignor = forms.IntegerField(label="Assignor", required=False)
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), label="Assigned to", required=False)
 
     class Meta:
         """Form options."""
 
         model = Task
-        fields = ['task_name', 'content', 'due', 'assignor']
+        fields = ['task_name', 'content', 'due', 'assigned_to']
 
     def save(self, commit=False):
         """Create a new task."""
-        super().save(commit=commit)
+        super().save(commit=False)
         task = Task(
             task_name=self.cleaned_data.get('task_name'),
             content=self.cleaned_data.get('content'),
             due=self.cleaned_data.get('due'),
-            assignor=self.cleaned_data.get('assignor'),
+            assigned_to=self.cleaned_data.get('assigned_to'),
+            assignor=self.user,
             status=Task.Status.IN_PROGRESS,
         )
-        task.save()
+        if commit:
+            task.save()
         return task

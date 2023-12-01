@@ -41,7 +41,7 @@
               <th scope="col">Task</th>
               <th scope="col">Add. Info</th>
               <th scope="col">Due Date</th>
-              <th scope="col">Assigned</th>
+              <th scope="col">Assignor</th>
               <th scope="col">Status</th>
             </tr>
           </thead>
@@ -59,7 +59,7 @@
                 <td>{{ task.task_name }}</td>
                 <td>{{ task.content }}</td>
                 <td>{{ task.due }}</td>
-                <td>{{ user.username }}</td>
+                <td>{{ task.assignor.username }}</td>
                 <td>{{ task.status }}</td>
               </tr>
             {% endfor %}

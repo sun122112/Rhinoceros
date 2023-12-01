@@ -56,5 +56,6 @@ class Task(models.Model):
     task_name = models.CharField(max_length=32)
     content = models.CharField(max_length=200)
     due = models.DateTimeField(default=default_due)
-    assignor = models.IntegerField(default=1)
+    assignor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks_given')
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks_received')
     status = models.IntegerField(default=Status.IN_PROGRESS)  # 1 for in progress, 2 for done

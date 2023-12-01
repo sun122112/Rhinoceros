@@ -24,7 +24,7 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    tasks = Task.objects.filter(assignor=current_user.id).all()
+    tasks = Task.objects.filter(assigned_to=current_user.id).all()
     return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
 
 
@@ -202,10 +202,17 @@ class TaskView(View):
 
         data = deepcopy(request.POST)
         data['due'] = due
-
-        if not data.get("assignor"):
-            data["assignor"] = request.user.id
-
         form = TaskForm(data)
-        form.save()
-        return redirect('dashboard')
+        form.user = request.user
+        assigned_to_id = request.POST.get('assigned_to', None)
+        if assigned_to_id:
+            assigned_to_user = User.objects.get(id=assigned_to_id)
+        else:
+            assigned_to_user = form.user
+
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.assigned_to = assigned_to_user
+            task.assignor = form.user
+            task.save()
+            return redirect('dashboard')
