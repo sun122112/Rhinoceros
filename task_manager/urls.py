@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+
 from tasks import views
 
 urlpatterns = [
@@ -27,8 +28,10 @@ urlpatterns = [
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
-    path('dashboard/task/', views.TaskView.as_view(), name='task'),
-    # path('dashboard/task_create/', views.task_create, name='task_create'),  # create task
-    # path('dashboard/task_delete/', views.task_delete, name='task_delete'),  # delete task
-
+    path('dashboard/create_task/', views.CreateTaskView.as_view(), name='create_task'),
+    path('dashboard/delete_task/<int:task_id>/', views.DeleteTaskView.as_view(), name='delete_task'),
+    path('dashboard/my_tasks/', views.my_tasks, name='my_tasks'),
+    path('dashboard/my_teams/', views.my_teams, name='my_teams'),
+    path('dashboard/create_team/', views.CreateTeamView.as_view(), name='create_team'),
+    path('dashboard/delete_team/<int:team_id>/', views.DeleteTeamView.as_view(), name='delete_team'),
 ]

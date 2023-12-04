@@ -2,7 +2,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Task
+
+from .models import User, Task, Team
 
 
 class LogInForm(forms.Form):
@@ -112,29 +113,80 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         return user
 
 
-class TaskForm(forms.ModelForm):
-    task_name = forms.CharField(label="Task Name")
-    content = forms.CharField(label="Content")
-    due = forms.DateTimeField(label="Due", required=False)
-    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), label="Assigned to", required=False)
+# class TaskForm(forms.ModelForm):
+#     task_name = forms.CharField(label="Task Name")
+#     content = forms.CharField(label="Content")
+#     due = forms.DateTimeField(label="Due", required=False)
+#     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), label="Assigned to", required=False)
+#
+#     class Meta:
+#         """Form options."""
+#
+#         model = Task
+#         fields = ['task_name', 'content', 'due', 'assigned_to']
+#
+#     def save(self, commit=False):
+#         """Create a new task."""
+#         super().save(commit=False)
+#         task = Task(
+#             task_name=self.cleaned_data.get('task_name'),
+#             content=self.cleaned_data.get('content'),
+#             due=self.cleaned_data.get('due'),
+#             assigned_to=self.cleaned_data.get('assigned_to'),
+#             assignor=self.user,
+#             status=Task.Status.IN_PROGRESS,
+#         )
+#         if commit:
+#             task.save()
+#         return task
+
+class CreateTaskForm(forms.ModelForm):
+    """Form enabling users to create new tasks, regardless of if a team has been registered or not."""
 
     class Meta:
-        """Form options."""
+        """Form options"""
 
         model = Task
-        fields = ['task_name', 'content', 'due', 'assigned_to']
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select()}
 
-    def save(self, commit=False):
-        """Create a new task."""
+    def save(self, commit=True):
+        """Saving a newly created task"""
+
         super().save(commit=False)
         task = Task(
             task_name=self.cleaned_data.get('task_name'),
-            content=self.cleaned_data.get('content'),
+            task_description=self.cleaned_data.get('task_description'),
             due=self.cleaned_data.get('due'),
-            assigned_to=self.cleaned_data.get('assigned_to'),
-            assignor=self.user,
-            status=Task.Status.IN_PROGRESS,
+            assigned=self.cleaned_data.get('assigned'),
+            status=self.cleaned_data.get('status')
         )
         if commit:
             task.save()
+
         return task
+
+
+class CreateTeamForm(forms.ModelForm):
+    """Form enabling users to create new teams"""
+
+    class Meta:
+        """Form options"""
+
+        model = Team
+        fields = ['team_name', 'team_description']
+        widgets = {'team_description': forms.Textarea()}
+
+    def save(self, commit=True):
+        """Saving a newly created team"""
+
+        super().save(commit=False)
+        team = Team(
+            team_name=self.cleaned_data.get('team_name'),
+            team_description=self.cleaned_data.get('team_description'),
+
+        )
+        if commit:
+            team.save()
+
+        return team

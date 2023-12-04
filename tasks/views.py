@@ -1,5 +1,5 @@
-from copy import deepcopy
-from datetime import datetime
+# from django.utils.timezone import make_aware
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -7,16 +7,16 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
-from django.db import transaction
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.timezone import make_aware
-from django.views import View
-from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, TaskForm
+from django.views import View
+from django.views.generic.edit import FormView, UpdateView, DeleteView
+
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
 from tasks.helpers import login_prohibited
-from tasks.models import Task, default_due, User
+# from datetime import datetime
+# from django.db import transaction
+from tasks.models import User, Task, Team
 
 
 @login_required
@@ -24,8 +24,11 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    tasks = Task.objects.filter(assigned_to=current_user.id).all()
-    return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
+
+    # tasks = Task.objects.filter(assigned_to=current_user.id).all()
+    # return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
+
+    return render(request, 'dashboard.html', {'user': current_user})
 
 
 @login_prohibited
@@ -161,58 +164,105 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
 
-class TaskView(View):
-    """task view"""
+@login_required
+def my_tasks(request):
+    """page to view my tasks"""
+    current_user = request.user
+    # tasks = Task.objects.all().order_by('order')
+    tasks = Task.objects.all()
+    return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
-    http_method_names = ['get', 'post']
 
-    def get(self, request):
-        users = User.objects.all()
-        form = TaskForm()
-        return render(request, 'task_create.html', {"users": users, "form": form})
+@login_required
+def my_teams(request):
+    """page to view my teams"""
+    teams = Team.objects.all()
+    return render(request, 'my_teams.html', {'teams': teams})
 
-    def post(self, request):
-        """Update task"""
-        if request.POST.get("action") == "update":
-            task_id = request.POST.get("id")
-            status = request.POST.get("status")
 
-            try:
-                task_to_update = Task.objects.get(pk=int(task_id))
-                task_to_update.status = status
-                task_to_update.save()
-            except Exception as e:
-                return HttpResponse("error: {}".format(str(e)))
-            return redirect('dashboard')
+class CreateTaskView(FormView):
+    """Display a create task view and handle newly created tasks. """
+    form_class = CreateTaskForm
+    template_name = "create_task.html"
 
-        """Delete task"""
-        if request.POST.get("id"):
-            try:
-                task_to_delete = Task.objects.get(pk=int(request.POST.get('id')))
-                task_to_delete.delete()
-            except Exception as e:
-                return HttpResponse("error: {}".format(str(e)))
-            return redirect('dashboard')
+    # redirect_when_logged_in_url = 'create_task'
+    # redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
-        """Create task"""
-        if request.POST.get("due"):
-            due = make_aware(datetime.strptime(request.POST.get("due"), '%Y-%m-%d %H:%M:%S'))
-        else:
-            due = default_due()
+    def form_valid(self, form):
+        task = form.save(commit=False)
+        # task.assigned = self.request.user
 
-        data = deepcopy(request.POST)
-        data['due'] = due
-        form = TaskForm(data)
-        form.user = request.user
-        assigned_to_id = request.POST.get('assigned_to', None)
-        if assigned_to_id:
-            assigned_to_user = User.objects.get(id=assigned_to_id)
-        else:
-            assigned_to_user = form.user
+        # task.assigned = 1
 
-        if form.is_valid():
-            task = form.save(commit=False)
-            task.assigned_to = assigned_to_user
-            task.assignor = form.user
-            task.save()
-            return redirect('dashboard')
+        task.save()
+        self.object = task
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Task Created!")
+        return reverse('my_tasks')
+
+    def get_form(self, form_class=form_class):
+        form = super().get_form(form_class)
+        form.fields['assigned'].queryset = User.objects.filter(
+            id=self.request.user.id)
+        return form
+
+
+class DeleteTaskView(DeleteView):
+    """Display a confirmation view to delete tasks and handle task deletion."""
+    model = Task
+    template_name = "delete_task.html"
+
+    def get_object(self, queryset=None):
+        """Return task, as a object, to be deleted"""
+        task = Task.objects.get(id=self.kwargs.get('task_id'))
+        return task
+
+    def get_success_url(self):
+        """Return redirect URL after successful deletion"""
+        # messages.add_message(self.request, member.SUCCESS, "Task deleted! ")
+        messages.add_message(self.request, messages.ERROR, "Task Deleted!")
+        return reverse('my_tasks')
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['task_id'] = self.kwargs.get('task_id')
+        return context
+
+
+class CreateTeamView(FormView):
+    """Display a create team view and handle newly created teams. """
+    form_class = CreateTeamForm
+    template_name = "create_team.html"
+
+    def form_valid(self, form):
+        team = form.save(commit=False)
+        team.save()
+        self.object = team
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Team Created!")
+        return reverse('my_teams')
+
+
+class DeleteTeamView(DeleteView):
+    """Display a confirmation view to delete teams and handle team deletion."""
+    model = Team
+    template_name = "delete_team.html"
+
+    def get_object(self, queryset=None):
+        """Return team, as a object, to be deleted"""
+        team = Team.objects.get(id=self.kwargs.get('team_id'))
+        return team
+
+    def get_success_url(self):
+        """Return redirect URL after successful deletion"""
+        messages.add_message(self.request, messages.ERROR, "Team Deleted!")
+        return reverse('my_teams')
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['team_id'] = self.kwargs.get('team_id')
+        return context
