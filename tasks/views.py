@@ -8,7 +8,8 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm 
+from tasks.forms import CreateTeamForm ,CreateTaskForm
 from tasks.helpers import login_prohibited
 
 #from datetime import datetime
