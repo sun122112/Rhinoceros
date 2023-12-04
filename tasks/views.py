@@ -24,10 +24,6 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-
-    # tasks = Task.objects.filter(assigned_to=current_user.id).all()
-    # return render(request, 'dashboard.html', {'user': current_user, 'tasks': tasks})
-
     return render(request, 'dashboard.html', {'user': current_user})
 
 
@@ -189,11 +185,8 @@ class CreateTaskView(FormView):
     # redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
     def form_valid(self, form):
+        form.request = self.request
         task = form.save(commit=False)
-        # task.assigned = self.request.user
-
-        # task.assigned = 1
-
         task.save()
         self.object = task
         return super().form_valid(form)
@@ -204,7 +197,7 @@ class CreateTaskView(FormView):
 
     def get_form(self, form_class=form_class):
         form = super().get_form(form_class)
-        form.fields['assigned'].queryset = User.objects.filter(
+        form.fields['assigned_to'].queryset = User.objects.filter(
             id=self.request.user.id)
         return form
 

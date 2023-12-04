@@ -113,33 +113,6 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         return user
 
 
-# class TaskForm(forms.ModelForm):
-#     task_name = forms.CharField(label="Task Name")
-#     content = forms.CharField(label="Content")
-#     due = forms.DateTimeField(label="Due", required=False)
-#     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), label="Assigned to", required=False)
-#
-#     class Meta:
-#         """Form options."""
-#
-#         model = Task
-#         fields = ['task_name', 'content', 'due', 'assigned_to']
-#
-#     def save(self, commit=False):
-#         """Create a new task."""
-#         super().save(commit=False)
-#         task = Task(
-#             task_name=self.cleaned_data.get('task_name'),
-#             content=self.cleaned_data.get('content'),
-#             due=self.cleaned_data.get('due'),
-#             assigned_to=self.cleaned_data.get('assigned_to'),
-#             assignor=self.user,
-#             status=Task.Status.IN_PROGRESS,
-#         )
-#         if commit:
-#             task.save()
-#         return task
-
 class CreateTaskForm(forms.ModelForm):
     """Form enabling users to create new tasks, regardless of if a team has been registered or not."""
 
@@ -147,8 +120,10 @@ class CreateTaskForm(forms.ModelForm):
         """Form options"""
 
         model = Task
-        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
-        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select()}
+        fields = ['task_name', 'task_description', 'due', 'assigned_to', 'status']
+        widgets = {'task_description': forms.Textarea(),
+                   'assigned_to': forms.Select(),
+                   'status': forms.Select()}
 
     def save(self, commit=True):
         """Saving a newly created task"""
@@ -158,9 +133,12 @@ class CreateTaskForm(forms.ModelForm):
             task_name=self.cleaned_data.get('task_name'),
             task_description=self.cleaned_data.get('task_description'),
             due=self.cleaned_data.get('due'),
-            assigned=self.cleaned_data.get('assigned'),
-            status=self.cleaned_data.get('status')
+            assigned_to=self.cleaned_data.get('assigned_to'),
+            status=self.cleaned_data.get('status'),
+
         )
+        task.assignor = self.request.user
+
         if commit:
             task.save()
 

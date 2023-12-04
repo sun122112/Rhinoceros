@@ -1,37 +1,37 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <h1>Welcome to your dashboard {{ user.username }}</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>Welcome to your dashboard {{ user.username }}</h1>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-  {% block dashboard_content %}
-  <!--alternative container-->
-  <!--1 card for everything-->
-  <div class = "container mb-3">
-    <div class = "row ">
-      <div class="card text-center">
-        
-        <div class="card-header">
-          <ul class="nav nav-pills card-header-pills nav-fill">
-            <li class="nav-item">
-              <a class="nav-link " href="{% url 'my_tasks' %}">My Tasks</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link " href="{% url 'my_teams' %}">My Teams</a>
-            </li>
-          </ul>
+    {% block dashboard_content %}
+        <!--alternative container-->
+        <!--1 card for everything-->
+        <div class="container mb-3">
+            <div class="row ">
+                <div class="card text-center">
+
+                    <div class="card-header">
+                        <ul class="nav nav-pills card-header-pills nav-fill">
+                            <li class="nav-item">
+                                <a class="nav-link " href="{% url 'my_tasks' %}">My Tasks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " href="{% url 'my_teams' %}">My Teams</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+
+                        <p class="card-text">Select 'My Tasks' or 'My Teams'.</p>
+
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            
-        <p class = "card-text">Select 'My Tasks' or 'My Teams'.</p>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endblock %}
+    {% endblock %}
 {% endblock %}

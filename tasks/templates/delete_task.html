@@ -14,8 +14,9 @@
                         <p class = "card-text">Task: {{task.task_name}}</p>
                         <p class = "card-text">Task Description: {{task.task_description}}</p>
                         <p class = "card-text">Due: {{task.due}}</p>
+                        <p class = "card-text">Assignor: {{task.assignor.username}}</p>
                         <p class = "card-text">Assigned to: {{user.username}}</p>
-                        <p class = "card-text">Status: {{task.status}}</p>
+                        <p class = "card-text">Status: {{task.get_status_display}}</p>
                         <form action ="{% url 'delete_task' task_id %}" method="post">
                             {% csrf_token %}
                             {% include 'partials/bootstrap_form.html' with form=form%} 
@@ -24,13 +25,8 @@
                         <br>
                         <p><a href="{% url 'my_tasks' %}" class = "btn btn-secondary">Cancel</a></p>
                     </div>
-
                 </div>
-                    
-
             </div>
-
-       
         </div>
     </div>
 </div>
