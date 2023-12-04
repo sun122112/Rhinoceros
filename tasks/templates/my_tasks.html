@@ -30,7 +30,8 @@
                         <th scope="col">Due Date</th>
                         <th scope="col">Assigned</th>
                         <th scope="col">Status</th>
-                        <th scope="col">Delete</th>
+                        <!--<th scope="col">Edit</th>-->
+                        <th scope="col"> </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,7 +42,8 @@
                         <td>{{ task.task_description }}</td>
                         <td>{{ task.due }}</td>
                         <td>{{ user.username }}</td>
-                        <td>{{ task.status }}</td>
+                        <td>{{ task.get_status_display }}</td>
+                        
                         <td>
                             <a href="{% url 'delete_task' task.id %}" class="btn btn-danger" title="Delete">
                                 <i class="bi bi-trash"></i>

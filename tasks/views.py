@@ -6,17 +6,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
-from django.views.generic.edit import FormView, UpdateView, DeleteView
+#from django.views.generic.edit import FormView, UpdateView, DeleteView
+from django.views.generic import FormView, UpdateView, DeleteView, DetailView
+
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm, EditTeamForm
 from tasks.helpers import login_prohibited
 
-#from datetime import datetime
-#from django.db import transaction
 from django.http import HttpResponse
 from tasks.models import User, Task, Team
-#from tasks.models import Task, default_due
-#from django.utils.timezone import make_aware
 from typing import Any
 
 
@@ -261,3 +259,51 @@ class DeleteTeamView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['team_id'] = self.kwargs.get('team_id')
         return context  
+
+"""class TeamInfoView(View):
+    #"""
+
+class EditTeamView(FormView):
+    
+    model=Team
+    template_name ="edit_team.html"
+    form_class = EditTeamForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs.update({'instance': self.get_object(self.kwargs.get('team_id'))})
+        return kwargs
+    
+    def get_object(self, team_id):
+        """Return team, as a object, to be edited"""
+        team = Team.objects.get(id=team_id)
+        return team
+
+    def get_success_url(self):
+        """Return redirect URL after successful edit"""
+        messages.add_message(self.request, messages.SUCCESS, "Team Details Updated!")
+        return reverse('my_teams')
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        team_id = self.kwargs.get('team_id')
+        context['team'] = Team.objects.get(id=team_id)
+        return context  
+    
+    def form_valid(self,form):
+        form.save()
+        return super().form_valid(form)
+
+
+class TeamInfoView(DetailView):
+    """Display team info"""
+    model = Team
+    template_name = "team_info.html"
+    context_object_name = "team"
+
+    def get_object(self, queryset=None):
+        """Return team, as an object, to be displayed"""
+        team_id = self.kwargs.get('team_id')
+        team = Team.objects.get(id=team_id)
+        return team
+

@@ -46,10 +46,16 @@ class User(AbstractUser):
 
 class Task(models.Model):
 
-    class Status(models.IntegerChoices):
+    """ class Status(models.IntegerChoices):
         NOT_STARTED = 0
         IN_PROGRESS = 1
-        DONE = 2
+        DONE = 2 """
+
+    STATUS_CHOICES = [
+        ('not_started', 'Not Started'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
 
     task_name = models.CharField(max_length=32)
     task_description = models.CharField(max_length=200)
@@ -58,9 +64,11 @@ class Task(models.Model):
     #order = models.IntegerField()
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
     #done = models.BooleanField(default=False)
-    status = models.IntegerField(default=Status.NOT_STARTED)
+    #status = models.IntegerField(default=Status.NOT_STARTED)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
+
 
 class Team(models.Model):
     team_name = models.CharField(max_length=32)
     team_description = models.CharField(max_length=200)
-    #team_members = 
+    team_members = models.ManyToManyField(User)

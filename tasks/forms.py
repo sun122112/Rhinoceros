@@ -118,7 +118,7 @@ class CreateTaskForm(forms.ModelForm):
 
         model = Task
         fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
-        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select()}
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
 
     def save(self, commit=True):
         """Saving a newly created task"""
@@ -138,7 +138,7 @@ class CreateTaskForm(forms.ModelForm):
 
 class CreateTeamForm(forms.ModelForm):
     """Form enabling users to create new teams"""
-    
+
     class Meta:
         """Form options"""
 
@@ -159,3 +159,35 @@ class CreateTeamForm(forms.ModelForm):
             team.save()
 
         return team
+
+class EditTeamForm(forms.ModelForm):
+    """Form enabling users to edit teams"""
+
+    add_members = forms.CharField(label='Add team member', widget=forms.TextInput(attrs={'placeholder':'Enter username'}),required=False)
+    #current_members=forms.CharField(widget=forms.Textarea(attrs=('readonly': 'readonly')), required=True)
+
+    class Meta:
+        """Form options"""
+
+        model=Team
+        fields = ['team_name', 'team_description']
+        widgets = {'team_description' : forms.Textarea()}
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.team=self.instance
+        
+    
+    def save(self, commit=True):
+        self.team.name=self.cleaned_data.get('team_name')
+        self.team.description=self.cleaned_data.get('team_description')
+
+        add_members_field = self.cleaned_data.get('add_members')
+        """ if add_members_field:
+            usernames - [username.strip() for username in add_members_field.split(',')]
+            add_members = User.objects.filter(username_in=usernames)
+            self.team.members.add(*add_members) """
+
+        if commit:
+            self.team.save()
+        return self.team
