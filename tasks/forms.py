@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Task, Team
+from .models import User, Task, Team , Invitation
 from django.contrib import messages
 
 class LogInForm(forms.Form):
@@ -159,3 +159,11 @@ class CreateTeamForm(forms.ModelForm):
             team.save()
 
         return team
+    
+class InvitationForm(forms.Form):
+    username = forms.CharField(label='Username')
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        # Add any additional validation logic here if needed
+        return username

@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from tasks import views
+from tasks.views import view_team_members, invite_users
+from tasks.views import view_invitations
+from tasks.views import accept_invitation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,5 +35,10 @@ urlpatterns = [
     path('dashboard/my_tasks/', views.my_tasks, name='my_tasks'),
     path('dashboard/my_teams/', views.my_teams, name='my_teams'),
     path('dashboard/create_team/', views.CreateTeamView.as_view(), name='create_team'),
+    path('view_team_members/<int:team_id>/', view_team_members, name='view_team_members'),
+    path('invite_users/<int:team_id>/', views.invite_users, name='invite_users'),
+    path('team_join/<int:team_id>/', views.team_join, name='team_join'),
+    path('view_invitations/', view_invitations, name='view_invitations'),
     path('dashboard/delete_team/<int:team_id>/', views.DeleteTeamView.as_view(), name='delete_team'),
+    path('accept_invitation/<int:invitation_id>/', accept_invitation, name='accept_invitation'),
 ]

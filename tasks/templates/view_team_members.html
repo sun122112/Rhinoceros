@@ -1,0 +1,28 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>View Team Members</h1>
+
+            <div class="card">
+                <div class="card-header">
+                    Team Members for {{ team.team_name }}:
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {% for member in team_members %}
+                            <li>{{ member.username }} - {{ member.email }}</li>
+                        {% endfor %}
+                    </ul>
+                    <br>
+                    <p><a href="{% url 'my_teams' %}" class="btn btn-secondary">Back to My Teams</a></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

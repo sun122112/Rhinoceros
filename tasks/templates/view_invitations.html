@@ -1,0 +1,25 @@
+<!-- view_invitations.html -->
+
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>Team Invitations</h1>
+
+            {% if invitations %}
+                <ul>
+                    {% for invitation in invitations %}
+                        <li>
+                            You have been invited to join the team "{{ invitation.team.team_name }}".
+                            <a href="{% url 'accept_invitation' invitation.id %}">Accept Invitation</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No pending invitations.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -6,10 +6,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
+from .models import Team
+from django.shortcuts import render, get_object_or_404 ##
 from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
 from tasks.helpers import login_prohibited
+from .models import Invitation
+from .forms import InvitationForm
 
 #from datetime import datetime
 #from django.db import transaction
@@ -174,6 +178,108 @@ def my_teams(request):
     """page to view my teams"""
     teams=Team.objects.all()
     return render(request, 'my_teams.html', {'teams': teams})
+
+def view_team_members(request, team_id):
+    team = Team.objects.get(id=team_id)
+    team_members = team.members.all()
+    return render(request, 'view_team_members.html', {'team': team, 'team_members': team_members})
+
+def accept_invitation(request, invitation_id):
+    # Retrieve the invitation object
+    invitation = Invitation.objects.get(id=invitation_id)
+
+    # Perform any necessary logic for accepting the invitation
+    user = request.user
+    team = invitation.team  # Use the team field
+
+    team.members.add(user)
+
+    # Mark the invitation as accepted
+    invitation.status = Invitation.Status.ACCEPTED
+    invitation.save()
+
+    # Success message
+    messages.success(request, f"You have accepted the invitation to join {team.team_name}")
+
+    # Redirect to a relevant page
+    return redirect('my_teams')
+
+def invite_users(request, team_id):
+    team = Team.objects.get(id=team_id)
+
+    if request.method == 'POST':
+        form = InvitationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            
+            # Check if the user with the provided username exists
+            try:
+                invited_user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                messages.error(request, f'User with username {username} does not exist.')
+                return redirect('my_teams')
+
+            # Check if the user is already a member of the team
+            if invited_user in team.members.all():
+                messages.info(request, f'{invited_user.username} is already a member of the team.')
+                return redirect('my_teams')
+
+            # Check if there is already an invitation for the user
+            existing_invitation = Invitation.objects.filter(invited_user=invited_user)
+            if existing_invitation.exists():
+                messages.info(request, f'Invitation already sent to {invited_user.username}.')
+                return redirect('my_teams')
+
+            # Create and save the invitation
+            invitation = Invitation(sender=request.user, invited_user=invited_user)
+            invitation.save()
+
+            # Add the invited user to the team's members
+            team.members.add(invited_user)
+
+            messages.success(request, f'Invitation sent to {invited_user.username}')
+            return redirect('my_teams')
+    else:
+        form = InvitationForm()
+
+    return render(request, 'invite_users.html', {'team': team, 'form': form})
+
+
+def view_invitations(request):
+    user = request.user
+    received_invitations = Invitation.objects.filter(invited_user=user)
+
+    return render(request, 'view_invitations.html', {'invitations': received_invitations})
+
+def accept_invitation(request, invitation_id):
+    # Retrieve the invitation object
+    invitation = Invitation.objects.get(id=invitation_id)
+
+    # Perform any necessary logic for accepting the invitation
+    user = request.user
+    team = invitation.team
+    team.members.add(user)
+
+    team.members.add(user)
+
+    # Mark the invitation as accepted
+    invitation.status = Invitation.Status.ACCEPTED
+    invitation.save()
+
+    # success message
+    messages.success(request, f"You have accepted the invitation to join {team.team_name}")
+
+    # Redirect to a relevant page
+    return redirect('my_teams')
+
+@login_required
+def team_join(request, team_id):
+    team = get_object_or_404(Team, id=team_id)
+
+    # Add the current user to the team's members
+    team.members.add(request.user)
+
+    return render(request, 'team_join.html', {'team': team})
 
 class CreateTaskView(FormView):
     """Display a create task view and handle newly created tasks. """

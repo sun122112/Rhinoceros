@@ -1,0 +1,27 @@
+<!-- invite_users.html -->
+
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>Invite Users to {{ team.team_name }}</h1>
+
+            <div class="card">
+                <div class="card-header">
+                    Inviting users to join the team:
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'invite_users' team_id=team.id %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-success mt-3">Send Invitation</button>
+                    </form>
+                    <br>
+                    <p><a href="{% url 'my_teams' %}" class="btn btn-secondary">Cancel</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

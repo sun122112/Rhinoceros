@@ -4,6 +4,7 @@ from django.db import models
 from libgravatar import Gravatar
 from datetime import timedelta
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
@@ -63,4 +64,21 @@ class Task(models.Model):
 class Team(models.Model):
     team_name = models.CharField(max_length=32)
     team_description = models.CharField(max_length=200)
-    #team_members = 
+    members = models.ManyToManyField(User, related_name='teams')
+
+class Invitation(models.Model):
+    
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        ACCEPTED = 'accepted', 'Accepted'
+        DECLINED = 'declined', 'Declined'
+
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    recipient_username = models.CharField(max_length=255)
+    invited_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    team = models.ForeignKey('Team', on_delete=models.CASCADE, default=1)
+
+
+    def __str__(self):
+        return f"Invitation from {self.sender.username} to {self.recipient_username} for {self.invited_user.username}"
