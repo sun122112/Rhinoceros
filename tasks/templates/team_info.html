@@ -1,0 +1,28 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class = "container ">
+    <div class = "row">
+        <div class = "col-12">
+            <h1>Your Team Details!</h1>
+            <a href="{% url 'my_teams' %}" button class="btn btn-sm btn-secondary">Go Back</button></a>
+            
+            <div class = "card">
+                <label>Team Name:</label>
+            <p>{{ team.team_name }}</p>
+            <label>Team Description:</label>
+            <p>{{ team.team_description }}</p>
+            <label>Team Members:</label>
+            <p>
+
+                {{ team.team_members }}
+            </p>
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
