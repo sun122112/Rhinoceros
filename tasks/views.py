@@ -225,13 +225,13 @@ def invite_users(request, team_id):
                 return redirect('my_teams')
 
             # Check if there is already an invitation for the user
-            existing_invitation = Invitation.objects.filter(invited_user=invited_user)
+            existing_invitation = Invitation.objects.filter(team=team, invited_user=invited_user)
             if existing_invitation.exists():
                 messages.info(request, f'Invitation already sent to {invited_user.username}.')
                 return redirect('my_teams')
 
             # Create and save the invitation
-            invitation = Invitation(sender=request.user, invited_user=invited_user)
+            invitation = Invitation(team=team, invited_user=invited_user, sender=request.user)
             invitation.save()
 
             # Add the invited user to the team's members
