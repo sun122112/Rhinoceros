@@ -37,7 +37,7 @@
                 <tbody>
                 {% for task in tasks %}
                     <tr>
-                        <th scope="row">{{ task.id }}</th>
+                        <th scope="row">{{ forloop.counter }}</th>
                         <td>{{ task.task_name }}</td>
                         <td>{{ task.task_description }}</td>
                         <td>{{ task.due }}</td>
