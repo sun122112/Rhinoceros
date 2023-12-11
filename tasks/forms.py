@@ -185,9 +185,10 @@ class EditTeamForm(forms.ModelForm):
         add_members_username = self.cleaned_data.get('add_members')
         
 
-        user_to_add = User.objects.get(username=add_members_username)
-        self.team.team_members.add(user_to_add)
-        
+        user_to_add = User.objects.filter(username=add_members_username).first()
+        if user_to_add is not None:
+            self.team.team_members.add(user_to_add)
+ 
 
         if commit:
             self.team.save()

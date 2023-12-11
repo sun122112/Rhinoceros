@@ -48,7 +48,7 @@ class Team(models.Model):
     team_name = models.CharField(max_length=32)
     team_description = models.CharField(max_length=200)
     team_members = models.ManyToManyField(User)
-    
+
 
 class Task(models.Model):
 
@@ -70,7 +70,6 @@ class Task(models.Model):
     #order = models.IntegerField()
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
     #done = models.BooleanField(default=False)
-    #status = models.IntegerField(default=Status.NOT_STARTED)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
     team=models.ForeignKey(Team, on_delete=models.CASCADE, blank=True, null=True)
 

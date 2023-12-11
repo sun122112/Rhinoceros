@@ -211,12 +211,21 @@ class DeleteTaskView(DeleteView):
 
     def get_object(self, queryset=None):
         """Return task, as a object, to be deleted"""
-        task = Task.objects.get(id=self.kwargs.get('task_id'))
-        return task
+        self.task = Task.objects.get(id=self.kwargs.get('task_id'))
+        return self.task
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        #messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
+        
+        if self.task.team:
+            messages.add_message(self.request, messages.ERROR, "Team Task Deleted!")
+            return reverse('team_info', kwargs={'team_id': self.task.team_id})
+        elif self.task.team == None:
+            messages.add_message(self.request, messages.ERROR, "Task Deleted!")
+            return reverse('my_tasks')
+
+
+
         messages.add_message(self.request, messages.ERROR, "Task Deleted!")
         return reverse('my_tasks')
 
@@ -264,9 +273,6 @@ class DeleteTeamView(DeleteView):
         context['team_id'] = self.kwargs.get('team_id')
         return context  
 
-"""class TeamInfoView(View):
-    #"""
-
 class EditTeamView(FormView):
     
     model=Team
@@ -288,7 +294,7 @@ class EditTeamView(FormView):
         messages.add_message(self.request, messages.SUCCESS, "Team Details Updated!")
         return reverse('my_teams')
 
-    def get_context_data(self, **kwargs: Any):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         team_id = self.kwargs.get('team_id')
         context['team'] = Team.objects.get(id=team_id)
@@ -332,7 +338,9 @@ class CreateTeamTaskView(FormView):
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Team Task Created!")
+        #return reverse('team_info')
         return reverse('my_teams')
+        #return reverse('team_info', kwargs={'team_id': self.task.team_id})
 
     def get_form(self, form_class=form_class):
         form=super().get_form(form_class)
@@ -362,13 +370,19 @@ class EditTaskView(FormView):
         return kwargs
     
     def get_object(self, task_id):
-        task = Task.objects.get(id=task_id)
-        return task
+        self.task = Task.objects.get(id=task_id)
+        return self.task
 
     def get_success_url(self):
-        """Return redirect URL after successful edit"""
-        messages.add_message(self.request, messages.SUCCESS, "Task Details Updated!")
-        return reverse('my_tasks')
+        """Return redirect URL after successful edit of either team tasks or personal tasks"""
+
+        if self.task.team:
+            messages.add_message(self.request, messages.SUCCESS, "Team Task Details Updated!")
+            return reverse('team_info', kwargs={'team_id': self.task.team_id})
+        elif self.task.team == None:
+            messages.add_message(self.request, messages.SUCCESS, "Task Details Updated!")
+            return reverse('my_tasks')
+
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
