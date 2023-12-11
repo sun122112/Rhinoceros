@@ -1,4 +1,4 @@
-{% extends 'base_content.html' %}
+{% extends 'my_tasks.html' %}
 {% block content %}
 
 <div class = "container ">
@@ -8,15 +8,25 @@
             <a href="{% url 'my_teams' %}" button class="btn btn-sm btn-secondary">Go Back</button></a>
             
             <div class = "card">
-                <label>Team Name:</label>
+                <label><strong>Team Name:</strong></label>
             <p>{{ team.team_name }}</p>
-            <label>Team Description:</label>
+            <label><strong>Team Description:</strong></label>
             <p>{{ team.team_description }}</p>
-            <label>Team Members:</label>
+            <label></label><strong>Team Members:</strong></label>
             <p>
-
-                {{ team.team_members }}
+                {% for member in team.team_members.all %}
+                    <p>{{ member }}</p>
+                {% endfor %}
             </p>
+            </div>
+
+            <div class = "card">
+                <h2>Tasks For Your Team</h2>
+                <a href="{% url 'create_team_task' team.id %}" class="btn btn-sm btn-outline-secondary">Create Team Task +</a>
+                {% block tasks%}
+                
+                    {{block.super}}
+                {% endblock %}
             </div>
             
 

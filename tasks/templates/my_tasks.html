@@ -17,10 +17,13 @@
         </div>
         <div class="card-body">
             <div id="myTasks" class="tab-content">
+
+
+              
               <!-- Content for My Tasks -->
               <a href="{% url 'create_task' %}" class="btn btn-sm btn-outline-secondary">Create Task +</a>
               
-              
+              {% block tasks %}
               <table class = "table">
                 <thead>
                     <tr>
@@ -41,7 +44,7 @@
                         <td>{{ task.task_name }}</td>
                         <td>{{ task.task_description }}</td>
                         <td>{{ task.due }}</td>
-                        <td>{{ user.username }}</td>
+                        <td>{{ task.assigned }}</td>
                         <td>{{ task.get_status_display }}</td>
                         
                         <td>
@@ -53,7 +56,8 @@
                 {% endfor %}
                 </tbody>
               </table>
-
+          
+              {% endblock %}
 
 
             </div>
@@ -62,4 +66,5 @@
       </div>
     </div>
   </div>
-{%endblock%}
+
+{% endblock %}

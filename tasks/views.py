@@ -163,14 +163,15 @@ class SignUpView(LoginProhibitedMixin, FormView):
 def my_tasks(request):
     """page to view my tasks"""
     current_user = request.user
-    #tasks = Task.objects.all().order_by('order')
-    tasks = Task.objects.all()
+
+    tasks = Task.objects.filter(assigned=current_user, team__isnull=True)
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
 @login_required
 def my_teams(request):
     """page to view my teams"""
-    teams=Team.objects.all()
+    current_user = request.user
+    teams = Team.objects.filter(team_members__in=[current_user])
     return render(request, 'my_teams.html', {'teams': teams})
 
 class CreateTaskView(FormView):
@@ -182,11 +183,12 @@ class CreateTaskView(FormView):
 
     def form_valid(self, form):
         task = form.save(commit=False)
-        #task.assigned = self.request.user
+        task.assigned = self.request.user
 
         #task.assigned = 1
 
         task.save()
+
         self.object = task
         return super().form_valid(form)
         
@@ -231,7 +233,9 @@ class CreateTeamView(FormView):
 
     def form_valid(self, form):
         team = form.save(commit=False)
+        
         team.save()
+        team.team_members.add(self.request.user) 
         self.object = team
         return super().form_valid(form)
         
@@ -299,11 +303,49 @@ class TeamInfoView(DetailView):
     """Display team info"""
     model = Team
     template_name = "team_info.html"
-    context_object_name = "team"
 
-    def get_object(self, queryset=None):
-        """Return team, as an object, to be displayed"""
-        team_id = self.kwargs.get('team_id')
+
+
+    def get(self,request,team_id):
+        current_user=request.user
         team = Team.objects.get(id=team_id)
-        return team
+        tasks= Task.objects.filter(team=team)
+        return render(request, 'team_info.html', {'user': current_user, 'tasks': tasks, 'team':team})
 
+class CreateTeamTaskView(FormView):
+    """Display a create task view and handle newly created tasks for a specific team. """
+    form_class = CreateTaskForm
+    template_name= "create_task.html"
+  
+    def form_valid(self, form):
+        team_id=self.kwargs.get('team_id')
+        team=Team.objects.get(id=team_id)
+
+        task = form.save(commit=False)
+        task.team= team
+        #task.assigned = self.request.user
+        task.save()
+        self.object = task
+
+        return super().form_valid(form)
+        
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Team Task Created!")
+        return reverse('my_teams')
+
+    def get_form(self, form_class=form_class):
+        form=super().get_form(form_class)
+        members = Team.objects.get(
+            id=self.kwargs.get('team_id')).team_members.all()
+
+        form.fields['assigned'].queryset = members
+
+        #form.fields['assigned'].queryset = User.objects.filter(
+        #    id=self.request.user.id)
+        return form
+
+    def get_context_data(self, **kwargs:Any):
+        context = super().get_context_data(**kwargs)
+        context['team_id'] =self.kwargs.get('team_id')
+        return context

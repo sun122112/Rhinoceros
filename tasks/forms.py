@@ -182,11 +182,12 @@ class EditTeamForm(forms.ModelForm):
         self.team.name=self.cleaned_data.get('team_name')
         self.team.description=self.cleaned_data.get('team_description')
 
-        add_members_field = self.cleaned_data.get('add_members')
-        """ if add_members_field:
-            usernames - [username.strip() for username in add_members_field.split(',')]
-            add_members = User.objects.filter(username_in=usernames)
-            self.team.members.add(*add_members) """
+        add_members_username = self.cleaned_data.get('add_members')
+        
+
+        user_to_add = User.objects.get(username=add_members_username)
+        self.team.team_members.add(user_to_add)
+        
 
         if commit:
             self.team.save()
