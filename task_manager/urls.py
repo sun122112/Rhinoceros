@@ -36,4 +36,5 @@ urlpatterns = [
     path('dashboard/my_teams/team_info/<int:team_id>/', views.TeamInfoView.as_view(), name='team_info'),
     path('dashboard/my_teams/edit_team/<int:team_id>/', views.EditTeamView.as_view(), name='edit_team'),
     path('dashboard/create_task/<int:team_id>/', views.CreateTeamTaskView.as_view(), name='create_team_task'),
+    path('dashboard/my_tasks/edit_task/<int:task_id>/', views.EditTaskView.as_view(), name='edit_task'),
 ]

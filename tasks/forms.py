@@ -192,3 +192,28 @@ class EditTeamForm(forms.ModelForm):
         if commit:
             self.team.save()
         return self.team
+
+
+class EditTaskForm(forms.ModelForm):
+    """Form enabling users to edit task"""
+
+    class Meta:
+        """Form options"""
+
+        model = Task
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task=self.instance
+        
+    
+    def save(self, commit=True):
+        self.task.name=self.cleaned_data.get('task_name')
+        self.task.description=self.cleaned_data.get('task_description')
+
+        if commit:
+            self.task.save()
+        return self.task

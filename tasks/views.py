@@ -10,7 +10,7 @@ from django.views import View
 from django.views.generic import FormView, UpdateView, DeleteView, DetailView
 
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm, EditTeamForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm, EditTeamForm, EditTaskForm
 from tasks.helpers import login_prohibited
 
 from django.http import HttpResponse
@@ -349,3 +349,33 @@ class CreateTeamTaskView(FormView):
         context = super().get_context_data(**kwargs)
         context['team_id'] =self.kwargs.get('team_id')
         return context
+
+class EditTaskView(FormView):
+    
+    model=Task
+    template_name ="edit_task.html"
+    form_class = EditTaskForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs.update({'instance': self.get_object(self.kwargs.get('task_id'))})
+        return kwargs
+    
+    def get_object(self, task_id):
+        task = Task.objects.get(id=task_id)
+        return task
+
+    def get_success_url(self):
+        """Return redirect URL after successful edit"""
+        messages.add_message(self.request, messages.SUCCESS, "Task Details Updated!")
+        return reverse('my_tasks')
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        task_id = self.kwargs.get('task_id')
+        context['task'] = Task.objects.get(id=task_id)
+        return context  
+    
+    def form_valid(self,form):
+        form.save()
+        return super().form_valid(form)
