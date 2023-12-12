@@ -17,10 +17,13 @@
         </div>
         <div class="card-body">
             <div id="myTasks" class="tab-content">
+
+
+              
               <!-- Content for My Tasks -->
               <a href="{% url 'create_task' %}" class="btn btn-sm btn-outline-secondary">Create Task +</a>
-
-
+              
+              {% block tasks %}
               <table class = "table">
                 <thead>
                     <tr>
@@ -30,8 +33,8 @@
                         <th scope="col">Due Date</th>
                         <th scope="col">Assigned</th>
                         <th scope="col">Status</th>
-                        <!--<th scope="col">Edit</th>-->
-                        <th scope="col"> </th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,9 +44,14 @@
                         <td>{{ task.task_name }}</td>
                         <td>{{ task.task_description }}</td>
                         <td>{{ task.due }}</td>
-                        <td>{{ user.username }}</td>
+                        <td>{{ task.assigned }}</td>
                         <td>{{ task.get_status_display }}</td>
-
+                        <td>
+                          <a href="{% url 'edit_task' task.id %}" class="btn btn-dark" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                        </td>
+                        
                         <td>
                             <a href="{% url 'delete_task' task.id %}" class="btn btn-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
@@ -53,9 +61,14 @@
                 {% endfor %}
                 </tbody>
               </table>
-                    </div>
-                </div>
+          
+              {% endblock %}
+
             </div>
+
+          </div>
         </div>
     </div>
+  </div>
+
 {% endblock %}
