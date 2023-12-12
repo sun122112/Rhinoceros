@@ -184,9 +184,6 @@ class CreateTaskView(FormView):
     def form_valid(self, form):
         task = form.save(commit=False)
         task.assigned = self.request.user
-
-        #task.assigned = 1
-
         task.save()
 
         self.object = task
@@ -329,18 +326,19 @@ class CreateTeamTaskView(FormView):
 
         task = form.save(commit=False)
         task.team= team
-        #task.assigned = self.request.user
+        task.assigned = self.request.user
         task.save()
         self.object = task
 
         return super().form_valid(form)
-        
+    
+
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Team Task Created!")
-        #return reverse('team_info')
-        return reverse('my_teams')
-        #return reverse('team_info', kwargs={'team_id': self.task.team_id})
+        team_id=self.kwargs.get('team_id')
+
+        return reverse('team_info', kwargs={'team_id': team_id})
 
     def get_form(self, form_class=form_class):
         form=super().get_form(form_class)
@@ -349,8 +347,6 @@ class CreateTeamTaskView(FormView):
 
         form.fields['assigned'].queryset = members
 
-        #form.fields['assigned'].queryset = User.objects.filter(
-        #    id=self.request.user.id)
         return form
 
     def get_context_data(self, **kwargs:Any):
