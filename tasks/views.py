@@ -6,15 +6,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
-<<<<<<< HEAD
-from .models import Team
-from django.shortcuts import render, get_object_or_404 ##
-from django.views.generic.edit import FormView, UpdateView, DeleteView
-=======
 #from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.views.generic import FormView, UpdateView, DeleteView, DetailView
 
->>>>>>> origin/dashboard_interface
 from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm, EditTeamForm, EditTaskForm
 from tasks.helpers import login_prohibited

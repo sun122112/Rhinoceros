@@ -159,7 +159,6 @@ class CreateTeamForm(forms.ModelForm):
             team.save()
 
         return team
-<<<<<<< HEAD
     
 class InvitationForm(forms.Form):
     username = forms.CharField(label='Username')
@@ -167,7 +166,7 @@ class InvitationForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data.get('username')
         return username
-=======
+
 
 class EditTeamForm(forms.ModelForm):
     """Form enabling users to edit teams"""
@@ -227,4 +226,4 @@ class EditTaskForm(forms.ModelForm):
         if commit:
             self.task.save()
         return self.task
->>>>>>> origin/dashboard_interface
+

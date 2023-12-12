@@ -64,32 +64,5 @@ class Task(models.Model):
     task_description = models.CharField(max_length=200)
     due = models.DateField(null=True, validators=[MinValueValidator(limit_value=timezone.now().date())])
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
-<<<<<<< HEAD
-    #done = models.BooleanField(default=False)
-    status = models.IntegerField(default=Status.NOT_STARTED)
-
-class Team(models.Model):
-    team_name = models.CharField(max_length=32)
-    team_description = models.CharField(max_length=200)
-    members = models.ManyToManyField(User, related_name='teams')
-
-class Invitation(models.Model):
-    
-    class Status(models.TextChoices):
-        PENDING = 'pending', 'Pending'
-        ACCEPTED = 'accepted', 'Accepted'
-        DECLINED = 'declined', 'Declined'
-
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
-    recipient_username = models.CharField(max_length=255)
-    invited_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    team = models.ForeignKey('Team', on_delete=models.CASCADE, default=1)
-
-
-    def __str__(self):
-        return f"Invitation from {self.sender.username} to {self.recipient_username} for {self.invited_user.username}"
-=======
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
     team=models.ForeignKey(Team, on_delete=models.CASCADE, blank=True, null=True)
->>>>>>> origin/dashboard_interface
