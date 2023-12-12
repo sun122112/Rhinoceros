@@ -1,4 +1,4 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
@@ -52,26 +52,16 @@ class Team(models.Model):
 
 class Task(models.Model):
 
-    """ class Status(models.IntegerChoices):
-        NOT_STARTED = 0
-        IN_PROGRESS = 1
-        DONE = 2 """
 
     STATUS_CHOICES = [
         ('not_started', 'Not Started'),
         ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
+        ('done', 'Done'),
     ]
 
-    task_name = models.CharField(max_length=32)
+    task_name = models.CharField(max_length=50)
     task_description = models.CharField(max_length=200)
-    #due = models.DateTimeField(default=default_due)
-    due = models.DateField(blank=True, null=True)
-    #order = models.IntegerField()
+    due = models.DateField(null=True, validators=[MinValueValidator(limit_value=timezone.now().date())])
     assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
-    #done = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
     team=models.ForeignKey(Team, on_delete=models.CASCADE, blank=True, null=True)
-
-
-

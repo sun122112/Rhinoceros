@@ -1,0 +1,14 @@
+[
+    {
+      "model": "tasks.task",
+      "pk": 1,
+      "fields": {
+        "task_name": "Takeover team member A's tasks",
+        "task_description": "Work not delivered on time, takeover of task for group to progress has been decided.",
+        "due": "2023-12-15",
+        "assigned": 1,
+        "status": "not_started"
+      }
+    }
+  ]
+  
