@@ -120,8 +120,8 @@ class CreateTaskForm(forms.ModelForm):
         """Form options"""
 
         model = Task
-        fields = ['task_name', 'task_description', 'due', 'assigned_to', 'status']
-        widgets = {'task_description': forms.Textarea(), 'assigned_to': forms.Select(), 'status': forms.Select()}
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
 
     def save(self, commit=True):
         """Saving a newly created task"""
@@ -131,11 +131,11 @@ class CreateTaskForm(forms.ModelForm):
             task_name=self.cleaned_data.get('task_name'),
             task_description=self.cleaned_data.get('task_description'),
             due=self.cleaned_data.get('due'),
-            assigned_to=self.cleaned_data.get('assigned_to'),
+            assigned_to=self.cleaned_data.get('assigned'),
             status=self.cleaned_data.get('status'),
 
         )
-        task.assignor = self.request.user
+        # task.assignor = self.request.user
 
         if commit:
             task.save()

@@ -200,7 +200,7 @@ class CreateTaskView(FormView):
 
     def get_form(self, form_class=form_class):
         form = super().get_form(form_class)
-        form.fields['assigned_to'].queryset = User.objects.filter(
+        form.fields['assigned'].queryset = User.objects.filter(
             id=self.request.user.id)
         return form
 

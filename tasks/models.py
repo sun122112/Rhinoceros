@@ -42,10 +42,6 @@ class User(AbstractUser):
 
 
 class Task(models.Model):
-    # class Status(models.IntegerChoices):
-    #     NOT_STARTED = 0, 'Not Started'
-    #     IN_PROGRESS = 1, 'In Progress'
-    #     DONE = 2, 'Done'
 
     STATUS_CHOICES = [
         ('not_started', 'Not Started'),
@@ -56,11 +52,10 @@ class Task(models.Model):
     task_name = models.CharField(max_length=32)
     task_description = models.CharField(max_length=200)
     due = models.DateField(blank=True, null=True)
-    assignor = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='given_tasks')
-    # assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
-    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='received_tasks')
-    # status = models.IntegerField(choices=Status.choices, default=Status.NOT_STARTED)
+    assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
+    # assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='received_tasks')
+    # assignor = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='given_tasks')
 
 
 
