@@ -20,7 +20,7 @@ class CreateTeamFormTestCase(TestCase):
         self.assertIn('team_name',form.fields)
         self.assertIn('team_description',form.fields)
 
-    def test_form_accepts_valid_input(self):
+    def test_valid_create_teams_form(self):
         form = CreateTeamForm(data=self.form_input)
         self.assertTrue(form.is_valid())
 
@@ -34,7 +34,18 @@ class CreateTeamFormTestCase(TestCase):
         form = CreateTeamForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
-    
+    def test_created_team_must_save_correctly(self):
+        form = CreateTeamForm(data=self.form_input)
+        before_count=Team.objects.count()
+        form.save()
+        after_count=Team.objects.count()
+        self.assertEqual(after_count, before_count+1)
+        team=Team.objects.get(id=1)
+        self.assertEqual(team.team_name, 'Test Team A')
+        self.assertEqual(team.team_description, 'Test Team Description: A team with 1 group member only.')
 
-
-    
+    def test_form_does_not_save_when_commit_is_false(self):
+        form = CreateTeamForm(data=self.form_input)
+        self.assertTrue(form.is_valid())
+        team = form.save(commit=False)
+        self.assertIsNone(team.id)
