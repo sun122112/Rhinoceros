@@ -131,7 +131,7 @@ class CreateTaskForm(forms.ModelForm):
             task_name=self.cleaned_data.get('task_name'),
             task_description=self.cleaned_data.get('task_description'),
             due=self.cleaned_data.get('due'),
-            assigned_to=self.cleaned_data.get('assigned'),
+            assigned=self.cleaned_data.get('assigned'),
             status=self.cleaned_data.get('status'),
 
         )
