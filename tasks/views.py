@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
-#from django.views.generic.edit import FormView, UpdateView, DeleteView
 from django.views.generic import FormView, UpdateView, DeleteView, DetailView
 
 from django.urls import reverse
@@ -161,15 +160,14 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
 @login_required
 def my_tasks(request):
-    """page to view my tasks"""
+    """Page to view my tasks"""
     current_user = request.user
-
     tasks = Task.objects.filter(assigned=current_user, team__isnull=True)
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
 @login_required
 def my_teams(request):
-    """page to view my teams"""
+    """Page to view my teams"""
     current_user = request.user
     teams = Team.objects.filter(team_members__in=[current_user])
     return render(request, 'my_teams.html', {'teams': teams})
