@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     """Configuration of admin interface for tasks."""
     list_display = [
-        'task_name', 'task_description', 'due', 'assignor', 'assigned_to', 'status'
+        'task_name', 'task_description', 'due', 'assigned', 'status'
     ]
 
 
