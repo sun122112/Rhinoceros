@@ -45,7 +45,7 @@ class User(AbstractUser):
 
 
 class Team(models.Model):
-    team_name = models.CharField(max_length=32)
+    team_name = models.CharField(max_length=50)
     team_description = models.CharField(max_length=200)
     team_members = models.ManyToManyField(User)
 

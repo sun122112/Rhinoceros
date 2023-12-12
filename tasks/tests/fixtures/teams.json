@@ -1,0 +1,13 @@
+[
+    {
+      "model": "tasks.team",
+      "pk": 1,
+      "fields": {
+        "team_name": "Team Cow",
+        "team_description":"A team with disengaged group members who don't deliver on time.",
+        "team_members":[1]
+
+      }
+    }
+  ]
+  
