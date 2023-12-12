@@ -9,11 +9,13 @@ class CreateTeamFormTestCase(TestCase):
 
     fixtures = [
         'tasks/tests/fixtures/default_user.json',
-        'tasks/tests/fixtures/teams.json'
     ]
 
     def setUp(self):
-        self.form_input = {'team_name': 'Team A', 'team_description': 'A team with 1 group member only.'}
+        self.form_input = {
+            'team_name': 'Test Team B', 
+            'team_description': 'Another test team'
+        }
 
     def test_form_contains_required_fields(self):
         form = CreateTeamForm()
@@ -41,8 +43,8 @@ class CreateTeamFormTestCase(TestCase):
         after_count=Team.objects.count()
         self.assertEqual(after_count, before_count+1)
         team=Team.objects.get(id=1)
-        self.assertEqual(team.team_name, 'Test Team A')
-        self.assertEqual(team.team_description, 'Test Team Description: A team with 1 group member only.')
+        self.assertEqual(team.team_name, 'Test Team B')
+        self.assertEqual(team.team_description, 'Another test team')
 
     def test_form_does_not_save_when_commit_is_false(self):
         form = CreateTeamForm(data=self.form_input)
