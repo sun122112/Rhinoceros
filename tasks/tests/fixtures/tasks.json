@@ -3,8 +3,8 @@
       "model": "tasks.task",
       "pk": 1,
       "fields": {
-        "task_name": "Takeover team member A's tasks",
-        "task_description": "Work not delivered on time, takeover of task for group to progress has been decided.",
+        "task_name": "Task 1",
+        "task_description": "Some description of a task",
         "due": "2023-12-15",
         "assigned": 1,
         "status": "not_started"
