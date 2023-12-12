@@ -6,11 +6,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
+<<<<<<< HEAD
 from .models import Team
 from django.shortcuts import render, get_object_or_404 ##
 from django.views.generic.edit import FormView, UpdateView, DeleteView
+=======
+#from django.views.generic.edit import FormView, UpdateView, DeleteView
+from django.views.generic import FormView, UpdateView, DeleteView, DetailView
+
+>>>>>>> origin/dashboard_interface
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTaskForm, CreateTeamForm, EditTeamForm, EditTaskForm
 from tasks.helpers import login_prohibited
 from .models import Invitation
 from .forms import InvitationForm
@@ -18,12 +24,8 @@ from django.urls import reverse_lazy
 from django.http import HttpResponseForbidden
 from django.views.generic import ListView
 
-#from datetime import datetime
-#from django.db import transaction
 from django.http import HttpResponse
 from tasks.models import User, Task, Team
-#from tasks.models import Task, default_due
-#from django.utils.timezone import make_aware
 from typing import Any
 
 
@@ -172,8 +174,8 @@ class SignUpView(LoginProhibitedMixin, FormView):
 def my_tasks(request):
     """page to view my tasks"""
     current_user = request.user
-    #tasks = Task.objects.all().order_by('order')
-    tasks = Task.objects.all()
+
+    tasks = Task.objects.filter(assigned=current_user, team__isnull=True)
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
 
@@ -195,7 +197,8 @@ class TeamDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
 @login_required
 def my_teams(request):
     """page to view my teams"""
-    teams=Team.objects.all()
+    current_user = request.user
+    teams = Team.objects.filter(team_members__in=[current_user])
     return render(request, 'my_teams.html', {'teams': teams})
 
 def view_team_members(request, team_id):
@@ -301,11 +304,9 @@ class CreateTaskView(FormView):
 
     def form_valid(self, form):
         task = form.save(commit=False)
-        #task.assigned = self.request.user
-
-        #task.assigned = 1
-
+        task.assigned = self.request.user
         task.save()
+
         self.object = task
         return super().form_valid(form)
         
@@ -328,12 +329,21 @@ class DeleteTaskView(DeleteView):
 
     def get_object(self, queryset=None):
         """Return task, as a object, to be deleted"""
-        task = Task.objects.get(id=self.kwargs.get('task_id'))
-        return task
+        self.task = Task.objects.get(id=self.kwargs.get('task_id'))
+        return self.task
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        #messages.add_message(self.request, member.SUCCESS, "Task deleted! ") 
+        
+        if self.task.team:
+            messages.add_message(self.request, messages.ERROR, "Team Task Deleted!")
+            return reverse('team_info', kwargs={'team_id': self.task.team_id})
+        elif self.task.team == None:
+            messages.add_message(self.request, messages.ERROR, "Task Deleted!")
+            return reverse('my_tasks')
+
+
+
         messages.add_message(self.request, messages.ERROR, "Task Deleted!")
         return reverse('my_tasks')
 
@@ -351,7 +361,9 @@ class CreateTeamView(FormView):
 
     def form_valid(self, form):
         team = form.save(commit=False)
+        
         team.save()
+        team.team_members.add(self.request.user) 
         self.object = team
         team.members.add(self.request.user)
         form.save_m2m()
@@ -381,3 +393,123 @@ class DeleteTeamView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['team_id'] = self.kwargs.get('team_id')
         return context  
+
+class EditTeamView(FormView):
+    
+    model=Team
+    template_name ="edit_team.html"
+    form_class = EditTeamForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs.update({'instance': self.get_object(self.kwargs.get('team_id'))})
+        return kwargs
+    
+    def get_object(self, team_id):
+        """Return team, as a object, to be edited"""
+        team = Team.objects.get(id=team_id)
+        return team
+
+    def get_success_url(self):
+        """Return redirect URL after successful edit"""
+        messages.add_message(self.request, messages.SUCCESS, "Team Details Updated!")
+        return reverse('my_teams')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        team_id = self.kwargs.get('team_id')
+        context['team'] = Team.objects.get(id=team_id)
+        return context  
+    
+    def form_valid(self,form):
+        form.save()
+        return super().form_valid(form)
+
+
+class TeamInfoView(DetailView):
+    """Display team info"""
+    model = Team
+    template_name = "team_info.html"
+
+
+
+    def get(self,request,team_id):
+        current_user=request.user
+        team = Team.objects.get(id=team_id)
+        tasks= Task.objects.filter(team=team)
+        return render(request, 'team_info.html', {'user': current_user, 'tasks': tasks, 'team':team})
+
+class CreateTeamTaskView(FormView):
+    """Display a create task view and handle newly created tasks for a specific team. """
+    form_class = CreateTaskForm
+    template_name= "create_task.html"
+  
+    def form_valid(self, form):
+        team_id=self.kwargs.get('team_id')
+        team=Team.objects.get(id=team_id)
+
+        task = form.save(commit=False)
+        task.team= team
+        task.assigned = self.request.user
+        task.save()
+        self.object = task
+
+        return super().form_valid(form)
+    
+
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS, "Team Task Created!")
+        team_id=self.kwargs.get('team_id')
+
+        return reverse('team_info', kwargs={'team_id': team_id})
+
+    def get_form(self, form_class=form_class):
+        form=super().get_form(form_class)
+        members = Team.objects.get(
+            id=self.kwargs.get('team_id')).team_members.all()
+
+        form.fields['assigned'].queryset = members
+
+        return form
+
+    def get_context_data(self, **kwargs:Any):
+        context = super().get_context_data(**kwargs)
+        context['team_id'] =self.kwargs.get('team_id')
+        return context
+
+class EditTaskView(FormView):
+    
+    model=Task
+    template_name ="edit_task.html"
+    form_class = EditTaskForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs.update({'instance': self.get_object(self.kwargs.get('task_id'))})
+        return kwargs
+    
+    def get_object(self, task_id):
+        self.task = Task.objects.get(id=task_id)
+        return self.task
+
+    def get_success_url(self):
+        """Return redirect URL after successful edit of either team tasks or personal tasks"""
+
+        if self.task.team:
+            messages.add_message(self.request, messages.SUCCESS, "Team Task Details Updated!")
+            return reverse('team_info', kwargs={'team_id': self.task.team_id})
+        elif self.task.team == None:
+            messages.add_message(self.request, messages.SUCCESS, "Task Details Updated!")
+            return reverse('my_tasks')
+
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        task_id = self.kwargs.get('task_id')
+        context['task'] = Task.objects.get(id=task_id)
+        return context  
+    
+    def form_valid(self,form):
+        form.save()
+        return super().form_valid(form)

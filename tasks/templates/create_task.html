@@ -6,8 +6,13 @@
     <div class = "row">
         <div class = "col-12">
             <h1>Create A Task!</h1>
-            
-            <form action="{% url 'create_task' %}" method="post" >
+            {% if team_id %}
+            <form action="{% url 'create_team_task' team_id %}" method="post" >
+            {% else %}
+                <form action="{% url 'create_task' %}" method="post" >
+            {% endif %}
+
+
                 {% csrf_token %}
                 {% include 'partials/bootstrap_form.html' with form=form%} 
 
