@@ -165,5 +165,4 @@ class InvitationForm(forms.Form):
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        # Add any additional validation logic here if needed
         return username

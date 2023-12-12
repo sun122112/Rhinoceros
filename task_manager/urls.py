@@ -20,6 +20,7 @@ from tasks import views
 from tasks.views import view_team_members, invite_users
 from tasks.views import view_invitations
 from tasks.views import accept_invitation
+from tasks.views import TeamListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,4 +42,5 @@ urlpatterns = [
     path('view_invitations/', view_invitations, name='view_invitations'),
     path('dashboard/delete_team/<int:team_id>/', views.DeleteTeamView.as_view(), name='delete_team'),
     path('accept_invitation/<int:invitation_id>/', accept_invitation, name='accept_invitation'),
+     path('teams/', TeamListView.as_view(), name='my_teams'),
 ]

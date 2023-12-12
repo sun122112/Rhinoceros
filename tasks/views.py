@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
@@ -14,6 +14,9 @@ from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateTas
 from tasks.helpers import login_prohibited
 from .models import Invitation
 from .forms import InvitationForm
+from django.urls import reverse_lazy
+from django.http import HttpResponseForbidden
+from django.views.generic import ListView
 
 #from datetime import datetime
 #from django.db import transaction
@@ -173,6 +176,22 @@ def my_tasks(request):
     tasks = Task.objects.all()
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
 
+
+class TeamListView(ListView):
+    model = Team
+    template_name = 'my_teams.html'
+    context_object_name = 'teams'
+
+    def get_queryset(self):
+        return Team.objects.filter(members=self.request.user)
+
+
+class TeamDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        team_id = self.kwargs['team_id']
+        team = get_object_or_404(Team, id=team_id)
+        return self.request.user in team.members.all() or self.request.user == team.creator
+
 @login_required
 def my_teams(request):
     """page to view my teams"""
@@ -180,28 +199,31 @@ def my_teams(request):
     return render(request, 'my_teams.html', {'teams': teams})
 
 def view_team_members(request, team_id):
-    team = Team.objects.get(id=team_id)
+    team = get_object_or_404(Team, id=team_id)
+    if request.user not in team.members.all():
+        return HttpResponseForbidden("You are not authorized to view this team.")
+
     team_members = team.members.all()
     return render(request, 'view_team_members.html', {'team': team, 'team_members': team_members})
 
+    """team = Team.objects.get(id=team_id)
+    team_members = team.members.all()
+    return render(request, 'view_team_members.html', {'team': team, 'team_members': team_members})"""\
+
 def accept_invitation(request, invitation_id):
-    # Retrieve the invitation object
+    
     invitation = Invitation.objects.get(id=invitation_id)
 
-    # Perform any necessary logic for accepting the invitation
     user = request.user
-    team = invitation.team  # Use the team field
+    team = invitation.team 
 
     team.members.add(user)
 
-    # Mark the invitation as accepted
     invitation.status = Invitation.Status.ACCEPTED
     invitation.save()
 
-    # Success message
     messages.success(request, f"You have accepted the invitation to join {team.team_name}")
 
-    # Redirect to a relevant page
     return redirect('my_teams')
 
 def invite_users(request, team_id):
@@ -212,29 +234,24 @@ def invite_users(request, team_id):
         if form.is_valid():
             username = form.cleaned_data['username']
             
-            # Check if the user with the provided username exists
             try:
                 invited_user = User.objects.get(username=username)
             except User.DoesNotExist:
                 messages.error(request, f'User with username {username} does not exist.')
                 return redirect('my_teams')
 
-            # Check if the user is already a member of the team
             if invited_user in team.members.all():
                 messages.info(request, f'{invited_user.username} is already a member of the team.')
                 return redirect('my_teams')
 
-            # Check if there is already an invitation for the user
             existing_invitation = Invitation.objects.filter(team=team, invited_user=invited_user)
             if existing_invitation.exists():
                 messages.info(request, f'Invitation already sent to {invited_user.username}.')
                 return redirect('my_teams')
 
-            # Create and save the invitation
             invitation = Invitation(team=team, invited_user=invited_user, sender=request.user)
             invitation.save()
 
-            # Add the invited user to the team's members
             team.members.add(invited_user)
 
             messages.success(request, f'Invitation sent to {invited_user.username}')
@@ -252,31 +269,25 @@ def view_invitations(request):
     return render(request, 'view_invitations.html', {'invitations': received_invitations})
 
 def accept_invitation(request, invitation_id):
-    # Retrieve the invitation object
     invitation = Invitation.objects.get(id=invitation_id)
 
-    # Perform any necessary logic for accepting the invitation
     user = request.user
     team = invitation.team
     team.members.add(user)
 
     team.members.add(user)
 
-    # Mark the invitation as accepted
     invitation.status = Invitation.Status.ACCEPTED
     invitation.save()
 
-    # success message
     messages.success(request, f"You have accepted the invitation to join {team.team_name}")
 
-    # Redirect to a relevant page
     return redirect('my_teams')
 
 @login_required
 def team_join(request, team_id):
     team = get_object_or_404(Team, id=team_id)
 
-    # Add the current user to the team's members
     team.members.add(request.user)
 
     return render(request, 'team_join.html', {'team': team})
@@ -335,12 +346,15 @@ class CreateTeamView(FormView):
     """Display a create team view and handle newly created teams. """
     form_class = CreateTeamForm
     template_name= "create_team.html"
+    success_url = reverse_lazy('my_teams')
 
 
     def form_valid(self, form):
         team = form.save(commit=False)
         team.save()
         self.object = team
+        team.members.add(self.request.user)
+        form.save_m2m()
         return super().form_valid(form)
         
 
