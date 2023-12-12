@@ -189,12 +189,39 @@ class EditTeamForm(forms.ModelForm):
         self.team.name=self.cleaned_data.get('team_name')
         self.team.description=self.cleaned_data.get('team_description')
 
-        add_members_field = self.cleaned_data.get('add_members')
-        """ if add_members_field:
-            usernames - [username.strip() for username in add_members_field.split(',')]
-            add_members = User.objects.filter(username_in=usernames)
-            self.team.members.add(*add_members) """
+        add_members_username = self.cleaned_data.get('add_members')
+        
+
+        user_to_add = User.objects.filter(username=add_members_username).first()
+        if user_to_add is not None:
+            self.team.team_members.add(user_to_add)
+ 
 
         if commit:
             self.team.save()
         return self.team
+
+
+class EditTaskForm(forms.ModelForm):
+    """Form enabling users to edit task"""
+
+    class Meta:
+        """Form options"""
+
+        model = Task
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task=self.instance
+        
+    
+    def save(self, commit=True):
+        self.task.name=self.cleaned_data.get('task_name')
+        self.task.description=self.cleaned_data.get('task_description')
+
+        if commit:
+            self.task.save()
+        return self.task

@@ -1,0 +1,13 @@
+[
+    {
+      "model": "tasks.team",
+      "pk": 1,
+      "fields": {
+        "team_name": "Team A",
+        "team_description":"A team with 1 group member only",
+        "team_members":[1]
+
+      }
+    }
+  ]
+  
