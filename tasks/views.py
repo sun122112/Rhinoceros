@@ -218,15 +218,13 @@ class DeleteTaskView(DeleteView):
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        
+
         if self.task.team:
             messages.add_message(self.request, messages.ERROR, "Team Task Deleted!")
             return reverse('team_info', kwargs={'team_id': self.task.team_id})
         elif self.task.team == None:
             messages.add_message(self.request, messages.ERROR, "Task Deleted!")
             return reverse('my_tasks')
-
-
 
         messages.add_message(self.request, messages.ERROR, "Task Deleted!")
         return reverse('my_tasks')

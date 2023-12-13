@@ -5,7 +5,7 @@
       "fields": {
         "team_name": "Test Team A",
         "team_description":"Test Team Description: A team with 1 group member only.",
-        "team_members":[1]
+        "team_members":[1],
 
       }
     }
