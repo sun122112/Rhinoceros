@@ -135,8 +135,6 @@ class CreateTaskForm(forms.ModelForm):
             status=self.cleaned_data.get('status'),
 
         )
-        # task.assignor = self.request.user
-
         if commit:
             task.save()
 

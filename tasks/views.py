@@ -1,6 +1,3 @@
-# from django.utils.timezone import make_aware
-from typing import Any
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -8,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
-from django.urls import reverse
+
 from django.views import View
 from django.views.generic import FormView, UpdateView, DeleteView, DetailView
 
@@ -187,7 +184,6 @@ class CreateTaskView(FormView):
     # redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
     def form_valid(self, form):
-        form.request = self.request
         task = form.save(commit=False)
         task.assigned = self.request.user
         task.save()
