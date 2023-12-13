@@ -33,6 +33,11 @@ class CreateTaskFormTestCase(TestCase):
         form = CreateTaskForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
+    def test_form_rejects_blank_task_description(self):
+        self.form_input['task_description'] = ''
+        form = CreateTaskForm(data=self.form_input)
+        self.assertFalse(form.is_valid())
+
     def test_form_rejects_invalid_due_date(self):
         self.form_input['due'] = 'invalid due'
         form = CreateTaskForm(data=self.form_input)
