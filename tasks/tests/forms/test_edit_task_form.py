@@ -14,7 +14,7 @@ class EditTaskFormTestCase(TestCase):
         self.user = User.objects.get(username='@johndoe')
         self.task = Task.objects.get(pk=1)
         self.form_input = {
-            'task_name': 'Undate task',
+            'task_name': 'Update task',
             'task_description': 'This is a test task.',
             'due': '2023-12-30',
             'assigned': self.user.id,
