@@ -33,7 +33,6 @@ class EditTeamViewTestCase(TestCase):
         form_input = {
             'team_name': 'Edited Team Name',
             'team_description': 'Edited Team Description'
-
         }
         response = self.client.post(self.url, data=form_input, follow=True)
         response_url = reverse('my_teams')
