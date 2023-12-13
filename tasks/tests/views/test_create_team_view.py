@@ -1,11 +1,11 @@
-"""Tests of the home view."""
+"""Unit tests of the create team view."""
 from django.test import TestCase
 from django.urls import reverse
 from tasks.forms import CreateTeamForm
 from tasks.models import User, Team
 
 class CreateTeamViewTest(TestCase):
-    """Tests of the create team view."""
+    """Unit tests of the create team view."""
 
     fixtures = ['tasks/tests/fixtures/default_user.json']
 

@@ -176,6 +176,20 @@ class EditTeamForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.team=self.instance
+
+    def clean_add_members(self):
+        username = self.cleaned_data.get('add_members')
+
+        if username == '':
+            return None
+
+        user = User.objects.filter(username=username)
+        if not user.exists():
+            raise forms.ValidationError("The specified user does not exist.")
+        elif user.first() in self.team.team_members.all():
+            raise forms.ValidationError("The user is already a member of the team.")
+
+        return username
         
     
     def save(self, commit=True):
@@ -184,12 +198,10 @@ class EditTeamForm(forms.ModelForm):
 
         add_members_username = self.cleaned_data.get('add_members')
         
-
         user_to_add = User.objects.filter(username=add_members_username).first()
         if user_to_add is not None:
             self.team.team_members.add(user_to_add)
  
-
         if commit:
             self.team.save()
         return self.team

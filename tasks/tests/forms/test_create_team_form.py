@@ -1,15 +1,11 @@
-"""Tests of the task view."""
+"""Unit tests of the create team form."""
 from django import forms
 from django.test import TestCase
 from tasks.forms import CreateTeamForm
-from tasks.models import User, Team
+from tasks.models import Team
 
 class CreateTeamFormTestCase(TestCase):
-    """Unit tests of the form for creating teams."""
-
-    fixtures = [
-        'tasks/tests/fixtures/default_user.json',
-    ]
+    """Unit tests of the create team form."""
 
     def setUp(self):
         self.form_input = {
@@ -17,7 +13,7 @@ class CreateTeamFormTestCase(TestCase):
             'team_description': 'Another test team'
         }
 
-    def test_form_contains_required_fields(self):
+    def test_form_has_required_fields(self):
         form = CreateTeamForm()
         self.assertIn('team_name',form.fields)
         self.assertIn('team_description',form.fields)
