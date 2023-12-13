@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
+
 from django.views import View
 from django.views.generic import FormView, UpdateView, DeleteView, DetailView
 
@@ -17,13 +18,12 @@ from tasks.models import User, Task, Team
 from typing import Any
 
 
-
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user':current_user})
+    return render(request, 'dashboard.html', {'user': current_user})
 
 
 @login_prohibited
@@ -158,12 +158,14 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
+
 @login_required
 def my_tasks(request):
     """Page to view my tasks"""
     current_user = request.user
     tasks = Task.objects.filter(assigned=current_user, team__isnull=True)
     return render(request, 'my_tasks.html', {'user': current_user, 'tasks': tasks})
+
 
 @login_required
 def my_teams(request):
@@ -172,12 +174,14 @@ def my_teams(request):
     teams = Team.objects.filter(team_members__in=[current_user])
     return render(request, 'my_teams.html', {'teams': teams})
 
+
 class CreateTaskView(FormView):
     """Display a create task view and handle newly created tasks. """
     form_class = CreateTaskForm
-    template_name= "create_task.html"
-    #redirect_when_logged_in_url = 'create_task'
-    #redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
+    template_name = "create_task.html"
+
+    # redirect_when_logged_in_url = 'create_task'
+    # redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
     def form_valid(self, form):
         task = form.save(commit=False)
@@ -186,14 +190,13 @@ class CreateTaskView(FormView):
 
         self.object = task
         return super().form_valid(form)
-        
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Task Created!")
         return reverse('my_tasks')
 
     def get_form(self, form_class=form_class):
-        form=super().get_form(form_class)
+        form = super().get_form(form_class)
         form.fields['assigned'].queryset = User.objects.filter(
             id=self.request.user.id)
         return form
@@ -211,7 +214,7 @@ class DeleteTaskView(DeleteView):
 
     def get_success_url(self):
         """Return redirect URL after successful deletion"""
-        
+
         if self.task.team:
             messages.add_message(self.request, messages.ERROR, "Team Task Deleted!")
             return reverse('team_info', kwargs={'team_id': self.task.team_id})
@@ -219,21 +222,19 @@ class DeleteTaskView(DeleteView):
             messages.add_message(self.request, messages.ERROR, "Task Deleted!")
             return reverse('my_tasks')
 
-
-
         messages.add_message(self.request, messages.ERROR, "Task Deleted!")
         return reverse('my_tasks')
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
         context['task_id'] = self.kwargs.get('task_id')
-        return context       
+        return context
+
 
 class CreateTeamView(FormView):
     """Display a create team view and handle newly created teams. """
     form_class = CreateTeamForm
-    template_name= "create_team.html"
-
+    template_name = "create_team.html"
 
     def form_valid(self, form):
         team = form.save(commit=False)
@@ -242,11 +243,11 @@ class CreateTeamView(FormView):
         team.team_members.add(self.request.user) 
         self.object = team
         return super().form_valid(form)
-        
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Team Created!")
         return reverse('my_teams')
+
 
 class DeleteTeamView(DeleteView):
     """Display a confirmation view to delete teams and handle team deletion."""
@@ -266,6 +267,7 @@ class DeleteTeamView(DeleteView):
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
         context['team_id'] = self.kwargs.get('team_id')
+
         return context  
 
 class EditTeamView(FormView):

@@ -1,7 +1,6 @@
 {% extends 'base_content.html' %}
 {% block content %}
 
-
 <div class = "container ">
     <div class = "row">
         <div class = "col-12">
@@ -14,13 +13,13 @@
 
 
                 {% csrf_token %}
-                {% include 'partials/bootstrap_form.html' with form=form%} 
+                {% include 'partials/bootstrap_form.html' with form=form%}
 
-                <button type="submit" class = "btn btn-secondary ">Create Task</button>
-            </form>
-         
+                    <button type="submit" class="btn btn-secondary ">Create Task</button>
+                </form>
+
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock %}

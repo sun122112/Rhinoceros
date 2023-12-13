@@ -2,8 +2,9 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
+
 from .models import User, Task, Team
-from django.contrib import messages
+
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -31,6 +32,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -41,7 +43,7 @@ class NewPasswordMixin(forms.Form):
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
                     'character and a number'
-            )]
+        )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
@@ -62,7 +64,7 @@ class PasswordForm(NewPasswordMixin):
 
     def __init__(self, user=None, **kwargs):
         """Construct new form instance with a user instance."""
-        
+
         super().__init__(**kwargs)
         self.user = user
 
@@ -110,6 +112,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         )
         return user
 
+
 class CreateTaskForm(forms.ModelForm):
     """Form enabling users to create new tasks, regardless of if a team has been registered or not."""
 
@@ -124,17 +127,19 @@ class CreateTaskForm(forms.ModelForm):
         """Saving a newly created task"""
 
         super().save(commit=False)
-        task=Task(
+        task = Task(
             task_name=self.cleaned_data.get('task_name'),
             task_description=self.cleaned_data.get('task_description'),
             due=self.cleaned_data.get('due'),
             assigned=self.cleaned_data.get('assigned'),
-            status=self.cleaned_data.get('status')
+            status=self.cleaned_data.get('status'),
+
         )
         if commit:
             task.save()
 
         return task
+
 
 class CreateTeamForm(forms.ModelForm):
     """Form enabling users to create new teams"""
@@ -144,13 +149,13 @@ class CreateTeamForm(forms.ModelForm):
 
         model = Team
         fields = ['team_name', 'team_description']
-        widgets = {'team_description' : forms.Textarea()}
+        widgets = {'team_description': forms.Textarea()}
 
-    def save(self, commit = True):
+    def save(self, commit=True):
         """Saving a newly created team"""
 
         super().save(commit=False)
-        team=Team(
+        team = Team(
             team_name=self.cleaned_data.get('team_name'),
             team_description=self.cleaned_data.get('team_description'),
 
