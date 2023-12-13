@@ -66,3 +66,6 @@ class DeleteTaskViewTestCase(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(str(messages[0]), "Team Task Deleted!")
 
+    def test_delete_task_has_team(self):
+        self.assertIsNotNone(self.task_with_team.team)
+

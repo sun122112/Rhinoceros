@@ -187,7 +187,6 @@ class CreateTaskView(FormView):
         task = form.save(commit=False)
         task.assigned = self.request.user
         task.save()
-
         self.object = task
         return super().form_valid(form)
 
@@ -198,7 +197,7 @@ class CreateTaskView(FormView):
     def get_form(self, form_class=form_class):
         form = super().get_form(form_class)
         form.fields['assigned'].queryset = User.objects.filter(
-            id=self.request.user.id)
+            id=self.request.user.id)        
         return form
 
 
@@ -222,8 +221,6 @@ class DeleteTaskView(DeleteView):
             messages.add_message(self.request, messages.ERROR, "Task Deleted!")
             return reverse('my_tasks')
 
-        messages.add_message(self.request, messages.ERROR, "Task Deleted!")
-        return reverse('my_tasks')
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
@@ -324,7 +321,10 @@ class CreateTeamTaskView(FormView):
 
         task = form.save(commit=False)
         task.team= team
-        task.assigned = self.request.user
+        if form.cleaned_data['assigned'] is None:
+            task.assigned = self.request.user
+        else:
+            task.assigned = form.cleaned_data['assigned']
         task.save()
         self.object = task
 
@@ -356,8 +356,17 @@ class EditTaskView(FormView):
     template_name ="edit_task.html"
     form_class = EditTaskForm
 
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        task = self.get_object(self.kwargs.get('task_id'))
+        if task.team:
+            form.fields['assigned'].queryset = task.team.team_members.all()
+        else:
+            form.fields['assigned'].queryset = User.objects.filter(id=self.request.user.id)
+        return form
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         kwargs.update({'instance': self.get_object(self.kwargs.get('task_id'))})
         return kwargs
     
@@ -382,6 +391,9 @@ class EditTaskView(FormView):
         context['task'] = Task.objects.get(id=task_id)
         return context  
     
-    def form_valid(self,form):
-        form.save()
+    def form_valid(self, form):
+        task = form.save(commit=False)
+        if not form.cleaned_data['assigned']:
+            task.assigned = self.request.user
+        task.save()
         return super().form_valid(form)

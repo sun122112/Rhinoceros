@@ -46,8 +46,8 @@ class EditTaskViewTestCase(TestCase):
 
     def test_successful_edit_task_without_team(self):
         form_input = {
-            'task_name': 'Update task',
-            'task_description': 'This is a test task.',
+            'task_name': 'Edited test task',
+            'task_description': 'This is an edited test task.',
             'due': '2023-12-30',
             'assigned': self.user.id,
             'status': 'done',
@@ -58,6 +58,11 @@ class EditTaskViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'my_tasks.html')
         messages = list(response.context['messages'])
         self.assertEqual(str(messages[0]), "Task Details Updated!")
+        response = self.client.post(self.url_without_team, data=form_input, follow=True)
+        self.assertEqual(response.status_code, 200)
+        edited_task = Task.objects.get(id=self.task_without_team.id)
+        self.assertIsNone(edited_task.team)
+
 
     def test_successful_edit_task_with_team(self):
         form_input = {
@@ -73,3 +78,18 @@ class EditTaskViewTestCase(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(str(messages[0]), "Team Task Details Updated!")
 
+    def test_edit_task_without_assigned_user(self):
+        form_input = {
+            'task_name': 'Edited test task',
+            'task_description': 'This is an edited test task.',
+            'due': '2023-12-30',
+            'status': 'done',
+        }
+        response = self.client.post(self.url_without_team, data=form_input, follow=True)
+        response_url = reverse('my_tasks')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'my_tasks.html')
+        messages = list(response.context['messages'])
+        self.assertEqual(str(messages[0]), "Task Details Updated!")
+        edited_task = Task.objects.get(id=self.task_without_team.id)
+        self.assertEqual(edited_task.assigned, self.user)
