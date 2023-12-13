@@ -305,8 +305,6 @@ class TeamInfoView(DetailView):
     model = Team
     template_name = "team_info.html"
 
-
-
     def get(self,request,team_id):
         current_user=request.user
         team = Team.objects.get(id=team_id)
@@ -329,8 +327,6 @@ class CreateTeamTaskView(FormView):
         self.object = task
 
         return super().form_valid(form)
-    
-
 
     def get_success_url(self):
         messages.add_message(self.request, messages.SUCCESS, "Team Task Created!")
