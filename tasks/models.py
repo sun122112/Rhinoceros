@@ -1,7 +1,10 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from libgravatar import Gravatar
+
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
@@ -17,7 +20,6 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
-
 
     class Meta:
         """Model options."""
@@ -38,5 +40,26 @@ class User(AbstractUser):
 
     def mini_gravatar(self):
         """Return a URL to a miniature version of the user's gravatar."""
-        
         return self.gravatar(size=60)
+
+
+class Team(models.Model):
+    team_name = models.CharField(max_length=50)
+    team_description = models.CharField(max_length=200)
+    team_members = models.ManyToManyField(User)
+
+
+class Task(models.Model):
+
+    STATUS_CHOICES = [
+        ('not_started', 'Not Started'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ]
+
+    task_name = models.CharField(max_length=50)
+    task_description = models.CharField(max_length=200)
+    due = models.DateField(null=True, validators=[MinValueValidator(limit_value=timezone.now().date())])
+    assigned = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='assigned')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
+    team=models.ForeignKey(Team, on_delete=models.CASCADE, blank=True, null=True)

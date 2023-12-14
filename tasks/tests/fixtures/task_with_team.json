@@ -1,0 +1,17 @@
+[
+    {
+      "model": "tasks.task",
+      "pk": 2,
+      "fields": {
+        "task_name": "Task 2",
+        "task_description": "Some description of another task",
+        "due": "2023-12-31",
+        "assigned": 1,
+        "status": "not_started",
+        "team": 1
+      }
+    }
+]
+
+
+
