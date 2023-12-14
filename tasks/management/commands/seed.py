@@ -71,7 +71,7 @@ class Command(BaseCommand):
         
 
     def create_users(self):
-        self.create_superuser()
+        self.try_create_superuser()
         self.generate_user_fixtures()
         self.generate_random_users()
 
@@ -83,6 +83,12 @@ class Command(BaseCommand):
             first_name='Admin',
             last_name='User'
         )
+
+    def try_create_superuser(self):
+        try:
+            self.create_superuser()
+        except:
+            pass
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
