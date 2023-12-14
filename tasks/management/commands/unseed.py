@@ -8,7 +8,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Unseed the database."""
-
-        User.objects.filter(is_staff=False).delete()
+        
         Task.objects.all().delete()
         Team.objects.all().delete()
+        User.objects.filter(is_staff=False).delete()
+        
