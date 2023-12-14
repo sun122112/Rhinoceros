@@ -6,6 +6,7 @@ import pytz
 from faker import Faker
 from random import randint, random
 from datetime import datetime, timedelta
+import random
 
 user_fixtures = [
     {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
