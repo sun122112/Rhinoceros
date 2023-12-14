@@ -5,6 +5,7 @@ from tasks.models import User, Task, Team
 import pytz
 from faker import Faker
 from random import randint, random
+from datetime import datetime, timedelta
 
 user_fixtures = [
     {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
@@ -12,6 +13,38 @@ user_fixtures = [
     {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
 ]
 
+team_fixtures = [
+    {'team_name': 'Team 1', 'team_description':'Team 1 description', 'team_members': [user_fixtures[0],user_fixtures[1]]},
+    {'team_name': 'Team 2', 'team_description':'Team 2 description', 'team_members': [user_fixtures[0],user_fixtures[1]]},
+    {'team_name': 'Team 3', 'team_description':'Team 3 description', 'team_members': [user_fixtures[0],user_fixtures[2]]},
+]
+
+task_fixtures = [
+    {
+        'task_name': 'Task 1',
+        'task_description': 'This is task 1',
+        'due': datetime.now() + timedelta(days=10),
+        'assigned': user_fixtures[0],
+        'status': 'not_started',
+        'team': team_fixtures[0],
+    },
+    {
+        'task_name': 'Task 2',
+        'task_description': 'This is task 2',
+        'due': datetime.now() + timedelta(days=20),
+        'assigned': user_fixtures[1],
+        'status': 'in_progress',
+        'team': team_fixtures[1],
+    },
+    {
+        'task_name': 'Task 3',
+        'task_description': 'This is task 3',
+        'due': datetime.now() + timedelta(days=30),
+        'assigned': user_fixtures[2],
+        'status': 'done',
+        'team': team_fixtures[2],
+    },
+]
 
 class Command(BaseCommand):
     """Build automation command to seed the database."""
