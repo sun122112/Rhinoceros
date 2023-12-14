@@ -128,8 +128,8 @@ class Command(BaseCommand):
         self.generate_random_teams()
 
     def generate_team_fixtures(self):
-    for data in team_fixtures:
-        self.try_create_team(data)
+        for data in team_fixtures:
+            self.try_create_team(data)
 
     def generate_random_teams(self):
         team_count = Team.objects.count()
