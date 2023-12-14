@@ -71,8 +71,18 @@ class Command(BaseCommand):
         
 
     def create_users(self):
+        self.create_superuser()
         self.generate_user_fixtures()
         self.generate_random_users()
+
+    def create_superuser(self):
+        admin_user = User.objects.create_superuser(
+            username='@admin',
+            email='admin@example.org',
+            password='Password123',
+            first_name='Admin',
+            last_name='User'
+        )
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
@@ -108,55 +118,7 @@ class Command(BaseCommand):
             last_name=data['last_name'],
         )
 
-    def create_tasks(self):
-        self.generate_task_fixtures()
-        self.generate_random_tasks()
-
-    def generate_task_fixtures(self):
-        for data in task_fixtures:
-            self.try_create_task(data)
-
-    def generate_random_tasks(self):
-        task_count = Task.objects.count()
-        while  task_count < self.TASK_COUNT:
-            print(f"Seeding task {task_count}/{self.TASK_COUNT}", end='\r')
-            self.generate_task()
-            task_count = Task.objects.count()
-        print("Task seeding complete.      ")
-
-    def generate_task(self):
-        task_name = self.faker.sentences(nb_words=10)
-        task_description = self.faker.paragraph(nb_sentences=3)
-        due = self.faker.future_date(end_date='+365d')
-        assigned = self.users.order_by('?').first()
-        status = self.faker.random_element(elements=('not_started', 'in_progress', 'done'))
-        team = self.teams.order_by('?').first() if random.random() < 0.5 else None
-
-        self.try_create_task({
-            'task_name': task_name,
-            'task_description': task_description,
-            'due': due,
-            'assigned': assigned,
-            'status': status,
-            'team': team,
-        })
-
-    def try_create_task(self, data):
-        try:
-            self.create_task(data)
-        except:
-            pass
-
-    def create_task(self, data):
-        Task.objects.create(
-            task_name=data['task_name'],
-            task_description=data['task_description'],
-            due=data['due'],
-            assigned=data['assigned'],
-            status=data['status'],
-            team=data['team'],
-        )
-
+    
     def create_teams(self):
         self.generate_team_fixtures()
         self.generate_random_teams()
@@ -196,6 +158,57 @@ class Command(BaseCommand):
             team_description=data['team_description'],
         )
         team.team_members.set(data['team_members'])
+    
+    
+    
+    def create_tasks(self):
+        self.generate_task_fixtures()
+        self.generate_random_tasks()
+
+    def generate_task_fixtures(self):
+        for data in task_fixtures:
+            self.try_create_task(data)
+
+    def generate_random_tasks(self):
+        task_count = Task.objects.count()
+        while  task_count < self.TASK_COUNT:
+            print(f"Seeding task {task_count}/{self.TASK_COUNT}", end='\r')
+            self.generate_task()
+            task_count = Task.objects.count()
+        print("Task seeding complete.      ")
+
+    def generate_task(self):
+        task_name = self.faker.sentences(nb=2)
+        task_description = self.faker.paragraph(nb_sentences=3)
+        due = self.faker.future_date(end_date='+365d')
+        assigned = self.users.order_by('?').first()
+        status = self.faker.random_element(elements=('not_started', 'in_progress', 'done'))
+        team = self.teams.order_by('?').first() if random.random() < 0.5 else None
+
+        self.try_create_task({
+            'task_name': task_name,
+            'task_description': task_description,
+            'due': due,
+            'assigned': assigned,
+            'status': status,
+            'team': team,
+        })
+
+    def try_create_task(self, data):
+        try:
+            self.create_task(data)
+        except:
+            pass
+
+    def create_task(self, data):
+        Task.objects.create(
+            task_name=data['task_name'],
+            task_description=data['task_description'],
+            due=data['due'],
+            assigned=data['assigned'],
+            status=data['status'],
+            team=data['team'],
+        )
 
 
 def create_username(first_name, last_name):
