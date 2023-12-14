@@ -26,7 +26,7 @@ task_fixtures = [
         'due': datetime.now() + timedelta(days=10),
         'assigned': user_fixtures[0],
         'status': 'not_started',
-        'team': team_fixtures[0],
+        'team': random.choice([None, team_fixtures[0]]),
     },
     {
         'task_name': 'Task 2',
@@ -34,7 +34,7 @@ task_fixtures = [
         'due': datetime.now() + timedelta(days=20),
         'assigned': user_fixtures[1],
         'status': 'in_progress',
-        'team': team_fixtures[1],
+        'team': random.choice([None, team_fixtures[1]]),
     },
     {
         'task_name': 'Task 3',
@@ -42,7 +42,7 @@ task_fixtures = [
         'due': datetime.now() + timedelta(days=30),
         'assigned': user_fixtures[2],
         'status': 'done',
-        'team': team_fixtures[2],
+        'team': random.choice([None, team_fixtures[2]]),
     },
 ]
 
