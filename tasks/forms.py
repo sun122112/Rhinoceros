@@ -2,7 +2,9 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+
+from .models import User, Task, Team
+
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -30,6 +32,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -40,7 +43,7 @@ class NewPasswordMixin(forms.Form):
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
                     'character and a number'
-            )]
+        )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
@@ -61,7 +64,7 @@ class PasswordForm(NewPasswordMixin):
 
     def __init__(self, user=None, **kwargs):
         """Construct new form instance with a user instance."""
-        
+
         super().__init__(**kwargs)
         self.user = user
 
@@ -108,3 +111,127 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+
+
+class CreateTaskForm(forms.ModelForm):
+    """Form enabling users to create new tasks, regardless of if a team has been registered or not."""
+
+    class Meta:
+        """Form options"""
+
+        model = Task
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
+
+    def save(self, commit=True):
+        """Saving a newly created task"""
+
+        super().save(commit=False)
+        task = Task(
+            task_name=self.cleaned_data.get('task_name'),
+            task_description=self.cleaned_data.get('task_description'),
+            due=self.cleaned_data.get('due'),
+            assigned=self.cleaned_data.get('assigned'),
+            status=self.cleaned_data.get('status'),
+
+        )
+        if commit:
+            task.save() 
+
+        return task
+
+
+class CreateTeamForm(forms.ModelForm):
+    """Form enabling users to create new teams"""
+
+    class Meta:
+        """Form options"""
+
+        model = Team
+        fields = ['team_name', 'team_description']
+        widgets = {'team_description': forms.Textarea()}
+
+    def save(self, commit=True):
+        """Saving a newly created team"""
+
+        super().save(commit=False)
+        team = Team(
+            team_name=self.cleaned_data.get('team_name'),
+            team_description=self.cleaned_data.get('team_description'),
+
+        )
+        if commit:
+            team.save()
+
+        return team
+
+class EditTeamForm(forms.ModelForm):
+    """Form enabling users to edit teams"""
+
+    add_members = forms.CharField(label='Add team member', widget=forms.TextInput(attrs={'placeholder':'Enter username'}),required=False)
+    #current_members=forms.CharField(widget=forms.Textarea(attrs=('readonly': 'readonly')), required=True)
+
+    class Meta:
+        """Form options"""
+
+        model=Team
+        fields = ['team_name', 'team_description']
+        widgets = {'team_description' : forms.Textarea()}
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.team=self.instance
+
+    def clean_add_members(self):
+        username = self.cleaned_data.get('add_members')
+
+        if username == '':
+            return None
+
+        user = User.objects.filter(username=username)
+        if not user.exists():
+            raise forms.ValidationError("The specified user does not exist.")
+        elif user.first() in self.team.team_members.all():
+            raise forms.ValidationError("The user is already a member of the team.")
+
+        return username
+        
+    
+    def save(self, commit=True):
+        self.team.name=self.cleaned_data.get('team_name')
+        self.team.description=self.cleaned_data.get('team_description')
+
+        add_members_username = self.cleaned_data.get('add_members')
+        
+        user_to_add = User.objects.filter(username=add_members_username).first()
+        if user_to_add is not None:
+            self.team.team_members.add(user_to_add)
+ 
+        if commit:
+            self.team.save()
+        return self.team
+
+
+class EditTaskForm(forms.ModelForm):
+    """Form enabling users to edit task"""
+
+    class Meta:
+        """Form options"""
+
+        model = Task
+        fields = ['task_name', 'task_description', 'due', 'assigned', 'status']
+        widgets = {'task_description': forms.Textarea(), 'assigned': forms.Select(), 'status': forms.Select()}
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task=self.instance
+        
+    
+    def save(self, commit=True):
+        self.task.name=self.cleaned_data.get('task_name')
+        self.task.description=self.cleaned_data.get('task_description')
+
+        if commit:
+            self.task.save()
+        return self.task
